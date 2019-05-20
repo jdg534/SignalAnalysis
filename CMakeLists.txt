@@ -5,4 +5,5 @@ project (LearningDSP)
 # Find gnu plot
 find_package(Gnuplot REQUIRED)
 
+add_subdirectory(SignalAnalysisLib)
 add_subdirectory(TestExe)
