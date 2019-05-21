@@ -8,6 +8,8 @@ namespace Signal
 	{
 		float MeanF(const float* samples, const size_t nSamples);
 		double MeanD(const double* samples, const size_t nSamples);
+		float VarienceF(const float* samples, const size_t nSamples, const float mean);
+		double VarienceD(const double* samples, const size_t nSamples, const double mean);
 	}
 }
 
