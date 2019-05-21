@@ -60,8 +60,10 @@ int main()
 	const size_t arrayElementCount = arrayMemSize / sizeof(double);
 	const double waveFormMean = Signal::Statistics::MeanD(testData::InputSignal_f32_1kHz_15kHz, arrayElementCount);
 	const double waveFormVarience = Signal::Statistics::VarienceD(testData::InputSignal_f32_1kHz_15kHz, arrayElementCount, waveFormMean);
+	const double waveFormStdDeviation = Signal::Statistics::StandardDeviationD(waveFormVarience);
 	std::cout << "Waveform mean calculated as: " << waveFormMean << std::endl;
 	std::cout << "Waveform varience calculated as: " << waveFormVarience << std::endl;
+	std::cout << "Waveform standard deviation calculated as: " << waveFormStdDeviation << std::endl;
 
 	return 0;
 }

@@ -65,3 +65,13 @@ double Signal::Statistics::VarienceD(const double* samples, const size_t nSample
 	}
 	return netVarience / static_cast<double>(nSamples - 1);
 }
+
+float Signal::Statistics::StandardDeviationF(const float varience)
+{
+	return sqrtf(varience);
+}
+
+double Signal::Statistics::StandardDeviationD(const double varience)
+{
+	return sqrt(varience);
+}
