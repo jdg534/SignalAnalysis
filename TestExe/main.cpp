@@ -63,12 +63,12 @@ namespace testData
 	};
 }
 
+
 int main()
 {
-	const size_t arrayMemSize = sizeof(testData::InputSignal_f32_1kHz_15kHz);
-	const size_t arrayElementCount = arrayMemSize / sizeof(testData::InputSignal_f32_1kHz_15kHz[0]);
-	const double waveFormMean = Signal::Statistics::MeanD(testData::InputSignal_f32_1kHz_15kHz, arrayElementCount);
-	const double waveFormVarience = Signal::Statistics::VarienceD(testData::InputSignal_f32_1kHz_15kHz, arrayElementCount, waveFormMean);
+	const size_t inputSignalArrayElementCount = sizeof(testData::InputSignal_f32_1kHz_15kHz) / sizeof(testData::InputSignal_f32_1kHz_15kHz[0]);
+	const double waveFormMean = Signal::Statistics::MeanD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount);
+	const double waveFormVarience = Signal::Statistics::VarienceD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, waveFormMean);
 	const double waveFormStdDeviation = Signal::Statistics::StandardDeviationD(waveFormVarience);
 	std::cout << "Waveform mean calculated as: " << waveFormMean << std::endl;
 	std::cout << "Waveform varience calculated as: " << waveFormVarience << std::endl;
@@ -77,16 +77,31 @@ int main()
 	// convolution parts of the library
 	const size_t impulseResArrayMemSize = sizeof(testData::Impulse_response);
 	const size_t impulseResArrayElementCount = impulseResArrayMemSize / sizeof(testData::Impulse_response[0]);
-	double outSignal[arrayElementCount];
-	Signal::Convolution::ConvolutionD(testData::InputSignal_f32_1kHz_15kHz, arrayElementCount, outSignal, testData::Impulse_response, impulseResArrayElementCount);
+	const size_t outSignalSize = inputSignalArrayElementCount + impulseResArrayElementCount;
+	double outSignal[outSignalSize];
+	Signal::Convolution::ConvolutionD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, testData::Impulse_response, impulseResArrayElementCount, outSignal);
 
-	// write outSignal to file (human readable)
-	std::ofstream output("ConvolutedSignal.txt");
-	for (size_t i = 0; i < arrayElementCount; ++i)
+	// write signals to file (human readable)
+	std::ofstream fileOutput("ConvolutedSignal.txt");
+	for (size_t i = 0; i < outSignalSize; ++i)
 	{
-		output << outSignal[i] << std::endl;
+		fileOutput << outSignal[i] << std::endl;
 	}
-	output.flush();
-	output.close();
+	fileOutput.close();
+
+	fileOutput = std::ofstream("InputSignal.txt");
+	for (size_t i = 0; i < inputSignalArrayElementCount; ++i)
+	{
+		fileOutput << testData::InputSignal_f32_1kHz_15kHz[i] << std::endl;
+	}
+	fileOutput.close();
+
+	fileOutput = std::ofstream("ImpulseResponce.txt");
+	for (size_t i = 0; i < impulseResArrayElementCount; ++i)
+	{
+		fileOutput << testData::Impulse_response[i] << std::endl;
+	}
+	fileOutput.close();
+
 	return 0;
 }

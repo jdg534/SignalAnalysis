@@ -15,9 +15,16 @@ namespace Signal
 	}
 	namespace Convolution
 	{
-		void ConvolutionD(const double* inputSignalSamples, const size_t nInputSignalSamples,
-			double* outputSignalSamples, // note that outputSignalSamples is assumed to be the same size as nInputSignalSamples
-			const double* inputSignalImpulseResponse, const size_t nElementInInputSignalImpulseResponse);
+		void ConvolutionD(
+			const double* inputSignalSamples, const size_t nInputSignalSamples,
+			const double* inputSignalImpulseResponse, const size_t nElementInInputSignalImpulseResponse,
+			double* outputSignalSamples // note that outputSignalSamples is expected to be of have nInputSignalSamples + nElementInInputSignalImpulseResponse elements
+			);
+		void ConvolutionF(
+			const float* inputSignalSamples, const size_t nInputSignalSamples,
+			const float* inputSignalImpulseResponse, const size_t nElementInInputSignalImpulseResponse,
+			float* outputSignalSamples // note that outputSignalSamples is expected to be of have nInputSignalSamples + nElementInInputSignalImpulseResponse elements
+			);
 	}
 }
 

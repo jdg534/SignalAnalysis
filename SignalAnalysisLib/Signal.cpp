@@ -77,12 +77,14 @@ double Signal::Statistics::StandardDeviationD(const double varience)
 	return sqrt(varience);
 }
 
-void Signal::Convolution::ConvolutionD(const double* inputSignalSamples, const size_t nInputSignalSamples,
-	double* outputSignalSamples, // note that outputSignalSamples is assumed to be the same size as nInputSignalSamples
-	const double* inputSignalImpulseResponse, const size_t nElementInInputSignalImpulseResponse)
+void Signal::Convolution::ConvolutionD(
+	const double* inputSignalSamples, const size_t nInputSignalSamples,
+	const double* inputSignalImpulseResponse, const size_t nElementInInputSignalImpulseResponse,
+	double* outputSignalSamples // note that outputSignalSamples is expected to be of have nInputSignalSamples + nElementInInputSignalImpulseResponse elements
+	)
 {
 	// 0 the output buffer
-	const size_t outputBufferMemSz = sizeof(double) * nInputSignalSamples;
+	const size_t outputBufferMemSz = sizeof(double) * (nInputSignalSamples + nElementInInputSignalImpulseResponse);
 	std::memset(outputSignalSamples, 0, outputBufferMemSz);
 
 	// O(N ^ 2)
@@ -91,6 +93,27 @@ void Signal::Convolution::ConvolutionD(const double* inputSignalSamples, const s
 		for (size_t j = 0; j < nElementInInputSignalImpulseResponse; ++j)
 		{
 			outputSignalSamples[i + j] = outputSignalSamples[i + j] + 
+				inputSignalSamples[i] * inputSignalImpulseResponse[j];
+		}
+	}
+}
+
+void Signal::Convolution::ConvolutionF(
+	const float* inputSignalSamples, const size_t nInputSignalSamples,
+	const float* inputSignalImpulseResponse, const size_t nElementInInputSignalImpulseResponse,
+	float* outputSignalSamples // note that outputSignalSamples is expected to be of have nInputSignalSamples + nElementInInputSignalImpulseResponse elements
+	)
+{
+	// 0 the output buffer
+	const size_t outputBufferMemSz = sizeof(float) * (nInputSignalSamples + nElementInInputSignalImpulseResponse);
+	std::memset(outputSignalSamples, 0, outputBufferMemSz);
+
+	// O(N ^ 2)
+	for (size_t i = 0; i < nInputSignalSamples; ++i)
+	{
+		for (size_t j = 0; j < nElementInInputSignalImpulseResponse; ++j)
+		{
+			outputSignalSamples[i + j] = outputSignalSamples[i + j] +
 				inputSignalSamples[i] * inputSignalImpulseResponse[j];
 		}
 	}
