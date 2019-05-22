@@ -13,6 +13,12 @@ namespace Signal
 		float StandardDeviationF(const float varience);
 		double StandardDeviationD(const double varience);
 	}
+	namespace Convolution
+	{
+		void ConvolutionD(const double* inputSignalSamples, const size_t nInputSignalSamples,
+			double* outputSignalSamples, // note that outputSignalSamples is assumed to be the same size as nInputSignalSamples
+			const double* inputSignalImpulseResponse, const size_t nElementInInputSignalImpulseResponse);
+	}
 }
 
 #endif // _SIGNAL_H_

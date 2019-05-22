@@ -1,5 +1,6 @@
 #include "Signal.h"
 
+#include <memory>
 #include <cmath>
 
 float Signal::Statistics::MeanF(const float* samples, const size_t nSamples)
@@ -74,4 +75,23 @@ float Signal::Statistics::StandardDeviationF(const float varience)
 double Signal::Statistics::StandardDeviationD(const double varience)
 {
 	return sqrt(varience);
+}
+
+void Signal::Convolution::ConvolutionD(const double* inputSignalSamples, const size_t nInputSignalSamples,
+	double* outputSignalSamples, // note that outputSignalSamples is assumed to be the same size as nInputSignalSamples
+	const double* inputSignalImpulseResponse, const size_t nElementInInputSignalImpulseResponse)
+{
+	// 0 the output buffer
+	const size_t outputBufferMemSz = sizeof(double) * nInputSignalSamples;
+	std::memset(outputSignalSamples, 0, outputBufferMemSz);
+
+	// O(N ^ 2)
+	for (size_t i = 0; i < nInputSignalSamples; ++i)
+	{
+		for (size_t j = 0; j < nElementInInputSignalImpulseResponse; ++j)
+		{
+			outputSignalSamples[i + j] = outputSignalSamples[i + j] + 
+				inputSignalSamples[i] * inputSignalImpulseResponse[j];
+		}
+	}
 }

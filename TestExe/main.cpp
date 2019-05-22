@@ -1,13 +1,14 @@
 #include <iostream>
+#include <fstream>
 
 #include <Signal.h>
 
 namespace testData
 {
-	// below array is taken from the course's example code
+	// below array(s) are taken from the course's example code
 	/* ----------------------------------------------------------------------
-** Test input signal contains 1000Hz + 15000 Hz
-** ------------------------------------------------------------------- */
+	** Test input signal contains 1000Hz + 15000 Hz
+	** ------------------------------------------------------------------- */
 
 	double InputSignal_f32_1kHz_15kHz[320] =
 	{
@@ -52,12 +53,20 @@ namespace testData
 	+0.8660254038f, +1.2552931065f, +0.3535533906f, +0.4174197128f, +1.0000000000f, +0.1913417162f, -0.0947343455f, +0.5924659585f,
 	+0.0000000000f, -0.5924659585f, +0.0947343455f, -0.1913417162f, -1.0000000000f, -0.4174197128f, -0.3535533906f, -1.2552931065f,
 	};
+
+	//Low-pass filter with 6000Hz cutoff frequency
+	double  Impulse_response[29] = {
+	 -0.0018225230f, -0.0015879294f, +0.0000000000f, +0.0036977508f, +0.0080754303f, +0.0085302217f, -0.0000000000f, -0.0173976984f,
+	 -0.0341458607f, -0.0333591565f, +0.0000000000f, +0.0676308395f, +0.1522061835f, +0.2229246956f, +0.2504960933f, +0.2229246956f,
+	 +0.1522061835f, +0.0676308395f, +0.0000000000f, -0.0333591565f, -0.0341458607f, -0.0173976984f, -0.0000000000f, +0.0085302217f,
+	 +0.0080754303f, +0.0036977508f, +0.0000000000f, -0.0015879294f, -0.0018225230f
+	};
 }
 
 int main()
 {
 	const size_t arrayMemSize = sizeof(testData::InputSignal_f32_1kHz_15kHz);
-	const size_t arrayElementCount = arrayMemSize / sizeof(double);
+	const size_t arrayElementCount = arrayMemSize / sizeof(testData::InputSignal_f32_1kHz_15kHz[0]);
 	const double waveFormMean = Signal::Statistics::MeanD(testData::InputSignal_f32_1kHz_15kHz, arrayElementCount);
 	const double waveFormVarience = Signal::Statistics::VarienceD(testData::InputSignal_f32_1kHz_15kHz, arrayElementCount, waveFormMean);
 	const double waveFormStdDeviation = Signal::Statistics::StandardDeviationD(waveFormVarience);
@@ -65,5 +74,19 @@ int main()
 	std::cout << "Waveform varience calculated as: " << waveFormVarience << std::endl;
 	std::cout << "Waveform standard deviation calculated as: " << waveFormStdDeviation << std::endl;
 
+	// convolution parts of the library
+	const size_t impulseResArrayMemSize = sizeof(testData::Impulse_response);
+	const size_t impulseResArrayElementCount = impulseResArrayMemSize / sizeof(testData::Impulse_response[0]);
+	double outSignal[arrayElementCount];
+	Signal::Convolution::ConvolutionD(testData::InputSignal_f32_1kHz_15kHz, arrayElementCount, outSignal, testData::Impulse_response, impulseResArrayElementCount);
+
+	// write outSignal to file (human readable)
+	std::ofstream output("ConvolutedSignal.txt");
+	for (size_t i = 0; i < arrayElementCount; ++i)
+	{
+		output << outSignal[i] << std::endl;
+	}
+	output.flush();
+	output.close();
 	return 0;
 }
