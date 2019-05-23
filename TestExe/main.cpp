@@ -93,11 +93,15 @@ int main()
 	double runningSumArray[inputSignalArrayElementCount];
 	Signal::Convolution::RunningSumD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, runningSumArray);
 
+	double convDifferenceArray[inputSignalArrayElementCount];
+	Signal::Convolution::DifferenceD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, convDifferenceArray);
+
 	// write signals to file (human readable)
 	DumpWaveformToTextFileD("ConvolutedSignal.Signal", outSignal, outSignalSize);
 	DumpWaveformToTextFileD("InputSignal.Signal", testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount);
 	DumpWaveformToTextFileD("ImpulseResponce.Signal", testData::Impulse_response, impulseResArrayElementCount);
 	DumpWaveformToTextFileD("RunningSum.Signal", runningSumArray, inputSignalArrayElementCount);
+	DumpWaveformToTextFileD("ConvolutionDifference.Signal", convDifferenceArray, inputSignalArrayElementCount);
 
 	return 0;
 }

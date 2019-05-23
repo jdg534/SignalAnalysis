@@ -136,3 +136,21 @@ void Signal::Convolution::RunningSumF(const float* inputSignal, const size_t nSa
 		output[i] = output[i - 1] + inputSignal[i];
 	}
 }
+
+void Signal::Convolution::DifferenceD(const double* inputSignal, const size_t nSamplesInInputSignal, double* output)
+{
+	output[0] = 0.0;
+	for (size_t i = 1; i < nSamplesInInputSignal; ++i)
+	{
+		output[i] = inputSignal[i] - inputSignal[i - 1];
+	}
+}
+
+void Signal::Convolution::DifferenceF(const float* inputSignal, const size_t nSamplesInInputSignal, float* output)
+{
+	output[0] = 0.0f;
+	for (size_t i = 1; i < nSamplesInInputSignal; ++i)
+	{
+		output[i] = inputSignal[i] - inputSignal[i - 1];
+	}
+}
