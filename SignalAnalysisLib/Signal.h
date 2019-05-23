@@ -25,6 +25,10 @@ namespace Signal
 			const float* inputSignalImpulseResponse, const size_t nElementInInputSignalImpulseResponse,
 			float* outputSignalSamples // note that outputSignalSamples is expected to be of have nInputSignalSamples + nElementInInputSignalImpulseResponse elements
 			);
+
+		// output is expected to be nSamplesInputSignal in size
+		void RunningSumD(const double* inputSignal, const size_t nSamplesInputSignal, double* output);
+		void RunningSumF(const float* inputSignal, const size_t nSamplesInputSignal, float* output);
 	}
 }
 

@@ -63,6 +63,15 @@ namespace testData
 	};
 }
 
+void DumpWaveformToTextFileD(const char* filePath, const double* waveformSamlpes, const size_t nWaveFormSamples)
+{
+	std::ofstream output(filePath);
+	for (size_t i = 0; i < nWaveFormSamples; ++i)
+	{
+		output << waveformSamlpes[i] << std::endl;
+	}
+	output.close();
+}
 
 int main()
 {
@@ -81,27 +90,14 @@ int main()
 	double outSignal[outSignalSize];
 	Signal::Convolution::ConvolutionD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, testData::Impulse_response, impulseResArrayElementCount, outSignal);
 
+	double runningSumArray[inputSignalArrayElementCount];
+	Signal::Convolution::RunningSumD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, runningSumArray);
+
 	// write signals to file (human readable)
-	std::ofstream fileOutput("ConvolutedSignal.txt");
-	for (size_t i = 0; i < outSignalSize; ++i)
-	{
-		fileOutput << outSignal[i] << std::endl;
-	}
-	fileOutput.close();
-
-	fileOutput = std::ofstream("InputSignal.txt");
-	for (size_t i = 0; i < inputSignalArrayElementCount; ++i)
-	{
-		fileOutput << testData::InputSignal_f32_1kHz_15kHz[i] << std::endl;
-	}
-	fileOutput.close();
-
-	fileOutput = std::ofstream("ImpulseResponce.txt");
-	for (size_t i = 0; i < impulseResArrayElementCount; ++i)
-	{
-		fileOutput << testData::Impulse_response[i] << std::endl;
-	}
-	fileOutput.close();
+	DumpWaveformToTextFileD("ConvolutedSignal.Signal", outSignal, outSignalSize);
+	DumpWaveformToTextFileD("InputSignal.Signal", testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount);
+	DumpWaveformToTextFileD("ImpulseResponce.Signal", testData::Impulse_response, impulseResArrayElementCount);
+	DumpWaveformToTextFileD("RunningSum.Signal", runningSumArray, inputSignalArrayElementCount);
 
 	return 0;
 }
