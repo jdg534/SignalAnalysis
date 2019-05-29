@@ -2,6 +2,9 @@
 
 #include <memory>
 #include <cmath>
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 
 float Signal::Statistics::MeanF(const float* samples, const size_t nSamples)
 {
@@ -152,5 +155,40 @@ void Signal::Convolution::DifferenceF(const float* inputSignal, const size_t nSa
 	for (size_t i = 1; i < nSamplesInInputSignal; ++i)
 	{
 		output[i] = inputSignal[i] - inputSignal[i - 1];
+	}
+}
+
+void Signal::FourierTransforms::DiscreteFourierTransformD(const double* inputSignal, const size_t inputSignalLength,
+	double* outputSignalRealComponent, double* outputSignalComplexComponent)
+{
+	// 0 the output arrays
+	const size_t outputArrayElements = (inputSignalLength / 2) + 1;
+	const size_t outputBufferMemSz = sizeof(double) * outputArrayElements;
+	std::memset(outputSignalRealComponent, 0, outputBufferMemSz);
+	std::memset(outputSignalComplexComponent, 0, outputBufferMemSz);
+
+	double iAsDbl = 0.0, jAsDbl;
+	const double inputSignalLengthAsDbl = static_cast<double>(inputSignalLengthAsDbl);
+	for (size_t i = 0; i < inputSignalLength; ++i, ++iAsDbl)
+	{
+		jAsDbl = 0.0;
+		for (size_t j = 0; j < inputSignalLength; ++j, ++jAsDbl)
+		{
+			outputSignalRealComponent[i] += inputSignal[j] * cos(2.0 * M_PI * iAsDbl * jAsDbl / inputSignalLengthAsDbl);
+			outputSignalComplexComponent[i] -= inputSignal[j] * sin(2.0 * M_PI * iAsDbl * jAsDbl / inputSignalLengthAsDbl);
+		}
+	}
+}
+
+void Signal::FourierTransforms::DiscreteFourierTransformMagnitudeD(double* magnitudeOutput, const double* dftRealComponent, const double* dftComplexComponent, const size_t componentArraySize)
+{
+	// this is expected to be called with the output from DiscreteFourierTransformD().
+	// lecture states that this is meant to use 1/2 the waveform
+	const size_t magOutElements = componentArraySize / 2;
+	for (size_t i = 0; i < magOutElements; ++i)
+	{
+		magnitudeOutput[i] = sqrt(
+			dftRealComponent[i] * dftRealComponent[i]
+			+ dftComplexComponent[i] * dftComplexComponent[i]);
 	}
 }

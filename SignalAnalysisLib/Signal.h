@@ -34,6 +34,18 @@ namespace Signal
 		void DifferenceD(const double* inputSignal, const size_t nSamplesInInputSignal, double* output); // output expected to be the same size as inputSignal
 		void DifferenceF(const float* inputSignal, const size_t nSamplesInInputSignal, float* output); // output expected to be the same size as inputSignal
 	}
+
+	namespace FourierTransforms
+	{
+		void DiscreteFourierTransformD(const double* inputSignal, const size_t inputSignalLength, 
+			double* outputSignalRealComponent,
+			double* outputSignalComplexComponent);
+
+		// note magnitudeOutput is expected to be (componentArraySize / 2) in length
+		void DiscreteFourierTransformMagnitudeD(double* magnitudeOutput, const double* dftRealComponent, const double* dftComplexComponent, const size_t componentArraySize);
+
+
+	}
 }
 
 #endif // _SIGNAL_H_
