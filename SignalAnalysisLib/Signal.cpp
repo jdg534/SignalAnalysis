@@ -168,7 +168,7 @@ void Signal::FourierTransforms::DiscreteFourierTransformD(const double* inputSig
 	std::memset(outputSignalComplexComponent, 0, outputBufferMemSz);
 
 	double iAsDbl = 0.0, jAsDbl;
-	const double inputSignalLengthAsDbl = static_cast<double>(inputSignalLengthAsDbl);
+	const double inputSignalLengthAsDbl = static_cast<double>(inputSignalLength);
 	for (size_t i = 0; i < inputSignalLength; ++i, ++iAsDbl)
 	{
 		jAsDbl = 0.0;
