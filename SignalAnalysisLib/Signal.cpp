@@ -169,7 +169,7 @@ void Signal::FourierTransforms::DiscreteFourierTransformD(const double* inputSig
 
 	double iAsDbl = 0.0, jAsDbl;
 	const double inputSignalLengthAsDbl = static_cast<double>(inputSignalLength);
-	for (size_t i = 0; i < inputSignalLength; ++i, ++iAsDbl)
+	for (size_t i = 0; i < outputArrayElements; ++i, ++iAsDbl)
 	{
 		jAsDbl = 0.0;
 		for (size_t j = 0; j < inputSignalLength; ++j, ++jAsDbl)
@@ -182,13 +182,11 @@ void Signal::FourierTransforms::DiscreteFourierTransformD(const double* inputSig
 
 void Signal::FourierTransforms::DiscreteFourierTransformMagnitudeD(double* magnitudeOutput, const double* dftRealComponent, const double* dftComplexComponent, const size_t componentArraySize)
 {
-	// this is expected to be called with the output from DiscreteFourierTransformD().
-	// lecture states that this is meant to use 1/2 the waveform
-	const size_t magOutElements = componentArraySize / 2;
-	for (size_t i = 0; i < magOutElements; ++i)
+	for (size_t i = 0; i < componentArraySize; ++i)
 	{
 		magnitudeOutput[i] = sqrt(
-			dftRealComponent[i] * dftRealComponent[i]
-			+ dftComplexComponent[i] * dftComplexComponent[i]);
+			(dftRealComponent[i] * dftRealComponent[i])
+			+ (dftComplexComponent[i] * dftComplexComponent[i])
+		);
 	}
 }

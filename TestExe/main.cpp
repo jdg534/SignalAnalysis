@@ -96,12 +96,23 @@ int main()
 	double convDifferenceArray[inputSignalArrayElementCount];
 	Signal::Convolution::DifferenceD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, convDifferenceArray);
 
+	// DFT part of the library
+	const size_t dftOutputArrayElementCount = (inputSignalArrayElementCount / 2) + 1;
+	double waveformRealComponent[dftOutputArrayElementCount];
+	double waveformComplexComponent[dftOutputArrayElementCount];
+	double dftMag[dftOutputArrayElementCount];
+	Signal::FourierTransforms::DiscreteFourierTransformD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, waveformRealComponent, waveformComplexComponent);
+	Signal::FourierTransforms::DiscreteFourierTransformMagnitudeD(dftMag, waveformRealComponent, waveformComplexComponent, dftOutputArrayElementCount);
+
 	// write signals to file (human readable)
 	DumpWaveformToTextFileD("ConvolutedSignal.Signal", outSignal, outSignalSize);
 	DumpWaveformToTextFileD("InputSignal.Signal", testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount);
 	DumpWaveformToTextFileD("ImpulseResponce.Signal", testData::Impulse_response, impulseResArrayElementCount);
 	DumpWaveformToTextFileD("RunningSum.Signal", runningSumArray, inputSignalArrayElementCount);
 	DumpWaveformToTextFileD("ConvolutionDifference.Signal", convDifferenceArray, inputSignalArrayElementCount);
+	DumpWaveformToTextFileD("DFT_RealComponent.Signal", waveformRealComponent, dftOutputArrayElementCount);
+	DumpWaveformToTextFileD("DFT_ComplexComponent.Signal", waveformRealComponent, dftOutputArrayElementCount);
+	DumpWaveformToTextFileD("DFT_Magnitude.Signal", dftMag, dftOutputArrayElementCount);
 
 	return 0;
 }
