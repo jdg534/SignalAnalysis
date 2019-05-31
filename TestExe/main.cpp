@@ -103,6 +103,8 @@ int main()
 	double dftMag[dftOutputArrayElementCount];
 	Signal::FourierTransforms::DiscreteFourierTransformD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, waveformRealComponent, waveformComplexComponent);
 	Signal::FourierTransforms::DiscreteFourierTransformMagnitudeD(dftMag, waveformRealComponent, waveformComplexComponent, dftOutputArrayElementCount);
+	double idftArray[inputSignalArrayElementCount];
+	Signal::FourierTransforms::InverseDiscreteFourierTransformD(idftArray, waveformRealComponent, waveformComplexComponent, dftOutputArrayElementCount);
 
 	// write signals to file (human readable)
 	DumpWaveformToTextFileD("ConvolutedSignal.Signal", outSignal, outSignalSize);
@@ -113,6 +115,7 @@ int main()
 	DumpWaveformToTextFileD("DFT_RealComponent.Signal", waveformRealComponent, dftOutputArrayElementCount);
 	DumpWaveformToTextFileD("DFT_ComplexComponent.Signal", waveformRealComponent, dftOutputArrayElementCount);
 	DumpWaveformToTextFileD("DFT_Magnitude.Signal", dftMag, dftOutputArrayElementCount);
+	DumpWaveformToTextFileD("IDFT.Signal", idftArray, inputSignalArrayElementCount);
 
 	return 0;
 }

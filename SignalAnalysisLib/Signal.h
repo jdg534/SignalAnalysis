@@ -44,7 +44,7 @@ namespace Signal
 		// note magnitudeOutput is expected to be (componentArraySize / 2) in length
 		void DiscreteFourierTransformMagnitudeD(double* magnitudeOutput, const double* dftRealComponent, const double* dftComplexComponent, const size_t componentArraySize);
 
-
+		void InverseDiscreteFourierTransformD(double* outputSignal, const double* dftRealComponent, const double* dftComplexComponent, const size_t componentArraySize);
 	}
 }
 

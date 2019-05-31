@@ -190,3 +190,43 @@ void Signal::FourierTransforms::DiscreteFourierTransformMagnitudeD(double* magni
 		);
 	}
 }
+
+void Signal::FourierTransforms::InverseDiscreteFourierTransformD(double* outputSignal, const double* dftRealComponent, const double* dftComplexComponent, const size_t componentArraySize)
+{
+	const size_t dftComponentArraySizeInMemory = componentArraySize * sizeof(double);
+	// need to convert the contents of dftRealComponent and dftComplexComponent, this requires making copies
+	double* copyOfDftRealComponent = (double*) malloc(dftComponentArraySizeInMemory);
+	double* copyOfDftComplexComponent = (double*)malloc(dftComponentArraySizeInMemory);
+	memcpy(copyOfDftRealComponent, dftRealComponent, dftComponentArraySizeInMemory);
+	memcpy(copyOfDftComplexComponent, dftComplexComponent, dftComponentArraySizeInMemory);
+
+	const size_t outSigArraySize = (componentArraySize - 1) * 2;
+
+	// convert the component array's samples be: sample[i] /= (outSigArraySize / 2)
+	const double outSigArraySizeOverTwo = static_cast<double>(outSigArraySize) / 2.0;
+	for (size_t i = 0; i < componentArraySize; ++i)
+	{
+		copyOfDftRealComponent[i] /= outSigArraySizeOverTwo;
+		copyOfDftComplexComponent[i] /= outSigArraySizeOverTwo;
+	}
+
+	// 0 the output array	
+	const size_t outSizeMemSize = outSigArraySize * sizeof(double);
+	std::memset(outputSignal, 0, outSizeMemSize);
+
+	const double iDftLength = static_cast<double>(outSigArraySize);
+	double dblDftSampleIndex = 0.0, dblOutputSigSampleIndex = 0.0;
+	for (size_t dftSampleIndex = 0; dftSampleIndex < componentArraySize; ++dftSampleIndex, ++dblDftSampleIndex)
+	{
+		dblOutputSigSampleIndex = 0.0;
+		for (size_t outputSignalSampleIndex = 0; outputSignalSampleIndex < outSigArraySize; ++outputSignalSampleIndex, ++dblOutputSigSampleIndex)
+		{
+			outputSignal[outputSignalSampleIndex] += copyOfDftRealComponent[dftSampleIndex] * cos(2.0 * M_PI * dblDftSampleIndex * dblOutputSigSampleIndex / iDftLength);
+			outputSignal[outputSignalSampleIndex] += copyOfDftComplexComponent[dftSampleIndex] * sin(2.0 * M_PI * dblDftSampleIndex * dblOutputSigSampleIndex / iDftLength);
+		}
+	}
+
+	// clean up don't want to leak memory
+	free(copyOfDftRealComponent);
+	free(copyOfDftComplexComponent);
+}
