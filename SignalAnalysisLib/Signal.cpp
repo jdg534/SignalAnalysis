@@ -231,6 +231,45 @@ void Signal::FourierTransforms::InverseDiscreteFourierTransformD(double* outputS
 	free(copyOfDftComplexComponent);
 }
 
+void Signal::Filters::MovingAverageSubsquentPointsD(const double* inputSignal, const size_t inputSignalLength, double* output, size_t nPointsToAverage)
+{
+	const double nPointsToAvgAsDbl = static_cast<double>(nPointsToAverage);
+	double average;
+
+	for (size_t i = 0; i < inputSignalLength; ++i)
+	{
+		average = 0.0;
+		for (size_t j = i; j < inputSignalLength && j < nPointsToAverage + i; ++j)
+		{
+			average += inputSignal[j];
+		}
+		average /= nPointsToAvgAsDbl;
+		output[i] = average;
+	}
+}
+
+void Signal::Filters::MovingAverageSymetricallyChosenPointsD(const double* inputSignal, const size_t inputSignalLength, double* output, size_t nPointsToAverage)
+{
+	const double nPointsToAvgAsDbl = static_cast<double>(nPointsToAverage);
+	double average;
+
+	const size_t halfNumPointsToAverage = nPointsToAverage / 2;
+	const int inputSigLenAsSignedInt = static_cast<int>(inputSignalLength);
+
+	for (int i = 0; i < inputSignalLength; ++i)
+	{
+		average = 0.0;
+		const int posibleStartingIndex = i - halfNumPointsToAverage;
+		const int sigAvgStartingPoint = posibleStartingIndex >= 0 ? posibleStartingIndex : 0; // start at i - halfNumPointsToAverage or the start of the array if we can't go back that far
+		for (size_t j = sigAvgStartingPoint; j < inputSignalLength && j < sigAvgStartingPoint + nPointsToAverage; ++j)
+		{
+			average += inputSignal[j];
+		}
+		average /= nPointsToAvgAsDbl;
+		output[i] = average;
+	}
+}
+
 void Signal::Filters::Windowed::HammingD(const double* inputSignal, const size_t inputSignalLength, double* outputWindow)
 {
 	// equation = w[i] = 0.54 - 0.46 * cos(2*PI*i / M)

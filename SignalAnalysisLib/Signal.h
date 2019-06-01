@@ -49,6 +49,9 @@ namespace Signal
 
 	namespace Filters
 	{
+		void MovingAverageSubsquentPointsD(const double* inputSignal, const size_t inputSignalLength, double* output, size_t nPointsToAverage);
+		void MovingAverageSymetricallyChosenPointsD(const double* inputSignal, const size_t inputSignalLength, double* output, size_t nPointsToAverage);
+
 		namespace Windowed
 		{
 			void HammingD(const double* inputSignal, const size_t inputSignalLength, double* outputWindow);

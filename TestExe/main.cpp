@@ -106,6 +106,13 @@ int main()
 	double idftArray[inputSignalArrayElementCount];
 	Signal::FourierTransforms::InverseDiscreteFourierTransformD(idftArray, waveformRealComponent, waveformComplexComponent, dftOutputArrayElementCount);
 
+	// filters
+	double waveformMovAvgLinFilter[inputSignalArrayElementCount];
+	double waveformMovAvgSimetricPickFilter[inputSignalArrayElementCount];
+	const size_t nPointsToAvg = 11;
+	Signal::Filters::MovingAverageSubsquentPointsD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, waveformMovAvgLinFilter, nPointsToAvg);
+	Signal::Filters::MovingAverageSymetricallyChosenPointsD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, waveformMovAvgSimetricPickFilter, nPointsToAvg);
+
 	// window filters
 	double waveformHammingWindow[inputSignalArrayElementCount];
 	double waveformBlackmanWindow[inputSignalArrayElementCount];
@@ -123,6 +130,8 @@ int main()
 	DumpWaveformToTextFileD("DFT_ComplexComponent.Signal", waveformRealComponent, dftOutputArrayElementCount);
 	DumpWaveformToTextFileD("DFT_Magnitude.Signal", dftMag, dftOutputArrayElementCount);
 	DumpWaveformToTextFileD("IDFT.Signal", idftArray, inputSignalArrayElementCount);
+	DumpWaveformToTextFileD("MovAvgLin.Signal", waveformMovAvgLinFilter, inputSignalArrayElementCount);
+	DumpWaveformToTextFileD("MovAvgSimetric.Signal", waveformMovAvgSimetricPickFilter, inputSignalArrayElementCount);
 	DumpWaveformToTextFileD("HammingWindowFilter.Signal", waveformHammingWindow, inputSignalArrayElementCount);
 	DumpWaveformToTextFileD("BlackmanWindowFilter.Signal", waveformBlackmanWindow, inputSignalArrayElementCount);
 	return 0;
