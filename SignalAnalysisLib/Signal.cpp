@@ -230,3 +230,34 @@ void Signal::FourierTransforms::InverseDiscreteFourierTransformD(double* outputS
 	free(copyOfDftRealComponent);
 	free(copyOfDftComplexComponent);
 }
+
+void Signal::Filters::Windowed::HammingD(const double* inputSignal, const size_t inputSignalLength, double* outputWindow)
+{
+	// equation = w[i] = 0.54 - 0.46 * cos(2*PI*i / M)
+	// i = sample index
+	// M = number of samples
+
+	const double dblInputSigLength = static_cast<double>(inputSignalLength);
+
+	double iterAsDbl = 0.0;
+	for (size_t i = 0; i < inputSignalLength; ++i, ++iterAsDbl)
+	{
+		outputWindow[i] = 0.54 - 0.46 * cos(2.0 * M_PI * iterAsDbl / dblInputSigLength);
+	}
+}
+
+void Signal::Filters::Windowed::BlackmanD(const double* inputSignal, const size_t inputSignalLength, double* outputWindow)
+{
+	// do Blackman window next
+	// equation = w[i] = 0.42 - 0.5 * cos(2 * PI * i / M) + 0.08 * cos(4 * PI * i / M)
+	// i = sample index
+	// M = number of samples
+
+	const double dblInputSigLength = static_cast<double>(inputSignalLength);
+
+	double iterAsDbl = 0.0;
+	for (size_t i = 0; i < inputSignalLength; ++i, ++iterAsDbl)
+	{
+		outputWindow[i] = 0.42 - 0.5 * cos(2.0 * M_PI * iterAsDbl / dblInputSigLength) + 0.08 * cos(4 * M_PI * iterAsDbl / dblInputSigLength);
+	}
+}

@@ -46,6 +46,15 @@ namespace Signal
 
 		void InverseDiscreteFourierTransformD(double* outputSignal, const double* dftRealComponent, const double* dftComplexComponent, const size_t componentArraySize);
 	}
+
+	namespace Filters
+	{
+		namespace Windowed
+		{
+			void HammingD(const double* inputSignal, const size_t inputSignalLength, double* outputWindow);
+			void BlackmanD(const double* inputSignal, const size_t inputSignalLength, double* outputWindow);
+		}
+	}
 }
 
 #endif // _SIGNAL_H_

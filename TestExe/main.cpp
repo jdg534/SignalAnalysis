@@ -106,6 +106,13 @@ int main()
 	double idftArray[inputSignalArrayElementCount];
 	Signal::FourierTransforms::InverseDiscreteFourierTransformD(idftArray, waveformRealComponent, waveformComplexComponent, dftOutputArrayElementCount);
 
+	// window filters
+	double waveformHammingWindow[inputSignalArrayElementCount];
+	double waveformBlackmanWindow[inputSignalArrayElementCount];
+	Signal::Filters::Windowed::HammingD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, waveformHammingWindow);
+	Signal::Filters::Windowed::BlackmanD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, waveformBlackmanWindow);
+
+
 	// write signals to file (human readable)
 	DumpWaveformToTextFileD("ConvolutedSignal.Signal", outSignal, outSignalSize);
 	DumpWaveformToTextFileD("InputSignal.Signal", testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount);
@@ -116,6 +123,7 @@ int main()
 	DumpWaveformToTextFileD("DFT_ComplexComponent.Signal", waveformRealComponent, dftOutputArrayElementCount);
 	DumpWaveformToTextFileD("DFT_Magnitude.Signal", dftMag, dftOutputArrayElementCount);
 	DumpWaveformToTextFileD("IDFT.Signal", idftArray, inputSignalArrayElementCount);
-
+	DumpWaveformToTextFileD("HammingWindowFilter.Signal", waveformHammingWindow, inputSignalArrayElementCount);
+	DumpWaveformToTextFileD("BlackmanWindowFilter.Signal", waveformBlackmanWindow, inputSignalArrayElementCount);
 	return 0;
 }
