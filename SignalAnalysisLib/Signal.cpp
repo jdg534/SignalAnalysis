@@ -300,3 +300,26 @@ void Signal::Filters::Windowed::BlackmanD(const double* inputSignal, const size_
 		outputWindow[i] = 0.42 - 0.5 * cos(2.0 * M_PI * iterAsDbl / dblInputSigLength) + 0.08 * cos(4 * M_PI * iterAsDbl / dblInputSigLength);
 	}
 }
+
+void Signal::Filters::Windowed::SyncLowPassD(double* filterOutput, const size_t filterOutputSize, double cutoffFrequency)
+{
+	const int filterOutputSizeI = static_cast<int>(filterOutputSize); // need signed values
+	const int halfFilterLength = filterOutputSizeI / 2;
+
+	double iDbl = 0.0;
+	const double filterOutputSizeDbl = static_cast<double>(filterOutputSize);
+
+	for (int i = 0; i < filterOutputSizeI; ++i, ++iDbl)
+	{
+		if (i - halfFilterLength == 0) // half way point is a special value
+		{
+			filterOutput[i] = 2.0 * M_PI * cutoffFrequency;
+		}
+		else
+		{
+			filterOutput[i] = sin(2.0 * M_PI * cutoffFrequency * (static_cast<double>(i - halfFilterLength)))
+				/ (static_cast<double>(i - halfFilterLength));
+			filterOutput[i] *= (0.54 - 0.46 * cos(2.0 * M_PI * iDbl / filterOutputSizeDbl));
+		}
+	}
+}

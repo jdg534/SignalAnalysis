@@ -118,7 +118,15 @@ int main()
 	double waveformBlackmanWindow[inputSignalArrayElementCount];
 	Signal::Filters::Windowed::HammingD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, waveformHammingWindow);
 	Signal::Filters::Windowed::BlackmanD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, waveformBlackmanWindow);
-
+	const size_t lowPassFilterArraySz = 29;
+	double lowPassFilterArray[lowPassFilterArraySz];
+	// cut off frequency is meant to be capped to 1/2 sampling rate, value need to be normalised (0.0 <= X <= 1.0)
+	Signal::Filters::Windowed::SyncLowPassD(lowPassFilterArray, lowPassFilterArraySz, 0.2);
+	
+	// convolution of low pas filter and the test data signal
+	const size_t convolutionSigLen = inputSignalArrayElementCount + lowPassFilterArraySz;
+	double generatedConvResult[convolutionSigLen];
+	Signal::Convolution::ConvolutionD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, lowPassFilterArray, lowPassFilterArraySz, generatedConvResult);
 
 	// write signals to file (human readable)
 	DumpWaveformToTextFileD("ConvolutedSignal.Signal", outSignal, outSignalSize);
@@ -134,5 +142,8 @@ int main()
 	DumpWaveformToTextFileD("MovAvgSimetric.Signal", waveformMovAvgSimetricPickFilter, inputSignalArrayElementCount);
 	DumpWaveformToTextFileD("HammingWindowFilter.Signal", waveformHammingWindow, inputSignalArrayElementCount);
 	DumpWaveformToTextFileD("BlackmanWindowFilter.Signal", waveformBlackmanWindow, inputSignalArrayElementCount);
+	DumpWaveformToTextFileD("GeneratedLowPassFilter.Signal", lowPassFilterArray, lowPassFilterArraySz);
+	DumpWaveformToTextFileD("ConvOfGendLowPassFltrWithTestData.Signal", generatedConvResult, convolutionSigLen);
+
 	return 0;
 }
