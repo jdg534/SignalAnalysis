@@ -54,8 +54,8 @@ namespace Signal
 
 		namespace Windowed
 		{
-			void HammingD(const double* inputSignal, const size_t inputSignalLength, double* outputWindow);
-			void BlackmanD(const double* inputSignal, const size_t inputSignalLength, double* outputWindow);
+			void HammingD(double* outputWindow, const size_t inputSignalLength);
+			void BlackmanD(double* outputWindow, const size_t inputSignalLength);
 			void SyncLowPassD(double* filterOutput, const size_t filterOutputSize, double cutoffFrequency);
 		}
 	}

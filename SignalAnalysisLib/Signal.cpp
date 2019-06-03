@@ -270,7 +270,7 @@ void Signal::Filters::MovingAverageSymetricallyChosenPointsD(const double* input
 	}
 }
 
-void Signal::Filters::Windowed::HammingD(const double* inputSignal, const size_t inputSignalLength, double* outputWindow)
+void Signal::Filters::Windowed::HammingD(double* outputWindow, const size_t inputSignalLength)
 {
 	// equation = w[i] = 0.54 - 0.46 * cos(2*PI*i / M)
 	// i = sample index
@@ -285,7 +285,7 @@ void Signal::Filters::Windowed::HammingD(const double* inputSignal, const size_t
 	}
 }
 
-void Signal::Filters::Windowed::BlackmanD(const double* inputSignal, const size_t inputSignalLength, double* outputWindow)
+void Signal::Filters::Windowed::BlackmanD(double* outputWindow, const size_t inputSignalLength)
 {
 	// do Blackman window next
 	// equation = w[i] = 0.42 - 0.5 * cos(2 * PI * i / M) + 0.08 * cos(4 * PI * i / M)

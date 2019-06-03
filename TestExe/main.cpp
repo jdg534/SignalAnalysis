@@ -114,19 +114,18 @@ int main()
 	Signal::Filters::MovingAverageSymetricallyChosenPointsD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, waveformMovAvgSimetricPickFilter, nPointsToAvg);
 
 	// window filters
-	double waveformHammingWindow[inputSignalArrayElementCount];
-	double waveformBlackmanWindow[inputSignalArrayElementCount];
-	Signal::Filters::Windowed::HammingD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, waveformHammingWindow);
-	Signal::Filters::Windowed::BlackmanD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, waveformBlackmanWindow);
-	const size_t lowPassFilterArraySz = 29;
-	double lowPassFilterArray[lowPassFilterArraySz];
-	// cut off frequency is meant to be capped to 1/2 sampling rate, value need to be normalised (0.0 <= X <= 1.0)
-	Signal::Filters::Windowed::SyncLowPassD(lowPassFilterArray, lowPassFilterArraySz, 0.2);
+	const size_t generatedFilterArraySz = 29;
+	double waveformHammingWindow[generatedFilterArraySz];
+	double waveformBlackmanWindow[generatedFilterArraySz];
+	double lowPassFilterArray[generatedFilterArraySz];
+	Signal::Filters::Windowed::HammingD(waveformHammingWindow, inputSignalArrayElementCount);
+	Signal::Filters::Windowed::BlackmanD(waveformHammingWindow, inputSignalArrayElementCount);
+	Signal::Filters::Windowed::SyncLowPassD(lowPassFilterArray, generatedFilterArraySz, 0.2); // cut off frequency is meant to be capped to 1/2 sampling rate, value need to be normalised (0.0 <= X <= 1.0)
 	
 	// convolution of low pas filter and the test data signal
-	const size_t convolutionSigLen = inputSignalArrayElementCount + lowPassFilterArraySz;
+	const size_t convolutionSigLen = inputSignalArrayElementCount + generatedFilterArraySz;
 	double generatedConvResult[convolutionSigLen];
-	Signal::Convolution::ConvolutionD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, lowPassFilterArray, lowPassFilterArraySz, generatedConvResult);
+	Signal::Convolution::ConvolutionD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, lowPassFilterArray, generatedFilterArraySz, generatedConvResult);
 
 	// write signals to file (human readable)
 	DumpWaveformToTextFileD("ConvolutedSignal.Signal", outSignal, outSignalSize);
@@ -140,10 +139,12 @@ int main()
 	DumpWaveformToTextFileD("IDFT.Signal", idftArray, inputSignalArrayElementCount);
 	DumpWaveformToTextFileD("MovAvgLin.Signal", waveformMovAvgLinFilter, inputSignalArrayElementCount);
 	DumpWaveformToTextFileD("MovAvgSimetric.Signal", waveformMovAvgSimetricPickFilter, inputSignalArrayElementCount);
-	DumpWaveformToTextFileD("HammingWindowFilter.Signal", waveformHammingWindow, inputSignalArrayElementCount);
-	DumpWaveformToTextFileD("BlackmanWindowFilter.Signal", waveformBlackmanWindow, inputSignalArrayElementCount);
-	DumpWaveformToTextFileD("GeneratedLowPassFilter.Signal", lowPassFilterArray, lowPassFilterArraySz);
+	DumpWaveformToTextFileD("HammingWindowFilter.Signal", waveformHammingWindow, generatedFilterArraySz);
+	DumpWaveformToTextFileD("BlackmanWindowFilter.Signal", waveformBlackmanWindow, generatedFilterArraySz);
+	DumpWaveformToTextFileD("GeneratedLowPassFilter.Signal", lowPassFilterArray, generatedFilterArraySz);
 	DumpWaveformToTextFileD("ConvOfGendLowPassFltrWithTestData.Signal", generatedConvResult, convolutionSigLen);
+
+	// we get a stack corruption error due to the large arrays, the above should be on the heap and deleted once done
 
 	return 0;
 }
