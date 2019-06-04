@@ -112,6 +112,9 @@ int main()
 	const size_t nPointsToAvg = 11;
 	Signal::Filters::MovingAverageSubsquentPointsD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, waveformMovAvgLinFilter, nPointsToAvg);
 	Signal::Filters::MovingAverageSymetricallyChosenPointsD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, waveformMovAvgSimetricPickFilter, nPointsToAvg);
+	double waveformRecursiveMovAvg[inputSignalArrayElementCount];
+	Signal::Filters::RecursiveMovingAverageD(testData::InputSignal_f32_1kHz_15kHz, inputSignalArrayElementCount, waveformRecursiveMovAvg, nPointsToAvg);
+
 
 	// window filters
 	const size_t generatedFilterArraySz = 29;
@@ -139,11 +142,11 @@ int main()
 	DumpWaveformToTextFileD("IDFT.Signal", idftArray, inputSignalArrayElementCount);
 	DumpWaveformToTextFileD("MovAvgLin.Signal", waveformMovAvgLinFilter, inputSignalArrayElementCount);
 	DumpWaveformToTextFileD("MovAvgSimetric.Signal", waveformMovAvgSimetricPickFilter, inputSignalArrayElementCount);
+	DumpWaveformToTextFileD("RecursiveMovAvg.Signal", waveformRecursiveMovAvg, inputSignalArrayElementCount);
 	DumpWaveformToTextFileD("HammingWindowFilter.Signal", waveformHammingWindow, generatedFilterArraySz);
 	DumpWaveformToTextFileD("BlackmanWindowFilter.Signal", waveformBlackmanWindow, generatedFilterArraySz);
 	DumpWaveformToTextFileD("GeneratedLowPassFilter.Signal", lowPassFilterArray, generatedFilterArraySz);
 	DumpWaveformToTextFileD("ConvOfGendLowPassFltrWithTestData.Signal", generatedConvResult, convolutionSigLen);
-
 	// we get a stack corruption error due to the large arrays, the above should be on the heap and deleted once done
 
 	return 0;

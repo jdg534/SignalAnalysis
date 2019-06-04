@@ -38,7 +38,7 @@ double Signal::Statistics::MeanD(const double* samples, const size_t nSamples)
 	return sum / static_cast<double>(nSamples);
 }
 
-int16_t MeanI16(const int16_t* samples, const size_t nSamples)
+int16_t Signal::Statistics::MeanI16(const int16_t* samples, const size_t nSamples)
 {
 	// prevent runtime error
 	if (nSamples == 0 || samples == nullptr)
@@ -56,7 +56,7 @@ int16_t MeanI16(const int16_t* samples, const size_t nSamples)
 
 float Signal::Statistics::VarienceF(const float* samples, const size_t nSamples, const float mean)
 {
-	// prevent runtime error, need atleast 2 samples
+	// prevent runtime error, need at least 2 samples
 	if (nSamples <= 1 || samples == nullptr)
 	{
 		return 0.0f;
@@ -72,7 +72,7 @@ float Signal::Statistics::VarienceF(const float* samples, const size_t nSamples,
 
 double Signal::Statistics::VarienceD(const double* samples, const size_t nSamples, const double mean)
 {
-	// prevent runtime error, need atleast 2 samples
+	// prevent runtime error, need at least 2 samples
 	if (nSamples <= 1 || samples == nullptr)
 	{
 		return 0.0;
@@ -86,12 +86,33 @@ double Signal::Statistics::VarienceD(const double* samples, const size_t nSample
 	return netVarience / static_cast<double>(nSamples - 1);
 }
 
+int16_t Signal::Statistics::VarienceI16(const int16_t * samples, const size_t nSamples, const int16_t  mean)
+{
+	// prevent runtime error, need at least 2 samples
+	if (nSamples <= 1 || samples == nullptr)
+	{
+		return 0.0;
+	}
+
+	int16_t netVarience = 0;
+	for (size_t i = 0; i < nSamples; ++i)
+	{
+		netVarience += pow(samples[i] - mean, 2);
+	}
+	return netVarience / static_cast<int16_t>(nSamples - 1);
+}
+
 float Signal::Statistics::StandardDeviationF(const float varience)
 {
 	return sqrtf(varience);
 }
 
 double Signal::Statistics::StandardDeviationD(const double varience)
+{
+	return sqrt(varience);
+}
+
+int16_t Signal::Statistics::StandardDeviationI16(const int16_t varience)
 {
 	return sqrt(varience);
 }
@@ -283,6 +304,27 @@ void Signal::Filters::MovingAverageSymetricallyChosenPointsD(const double* input
 		}
 		average /= nPointsToAvgAsDbl;
 		output[i] = average;
+	}
+}
+
+void Signal::Filters::RecursiveMovingAverageD(const double* intputSignal, const size_t inputSignalLength, double* outputSignal, const size_t nPointsToAverage)
+{
+	// 0 the output buffer
+	const size_t outSigSZInMem = inputSignalLength * sizeof(double);
+	memset(outputSignal, 0, outSigSZInMem);
+
+	double accum = 0.0;
+	for (size_t i = 0; i < nPointsToAverage - 1; ++i)
+	{
+		accum += intputSignal[i];
+	}
+
+	outputSignal[(nPointsToAverage - 1 / 2)] = accum / static_cast<double>(nPointsToAverage);
+	const size_t halfNumPointsToAvg = nPointsToAverage / 2;
+	for (size_t i = halfNumPointsToAvg; i < inputSignalLength - halfNumPointsToAvg - 1; ++i)
+	{
+		accum += intputSignal[i + ((nPointsToAverage - 1) / 2)] - intputSignal[i - halfNumPointsToAvg];
+		outputSignal[i] = accum / static_cast<double>(nPointsToAverage);
 	}
 }
 

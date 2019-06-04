@@ -15,8 +15,10 @@ namespace Signal
 		int16_t MeanI16(const int16_t* samples, const size_t nSamples);
 		float VarienceF(const float* samples, const size_t nSamples, const float mean);
 		double VarienceD(const double* samples, const size_t nSamples, const double mean);
+		int16_t VarienceI16(const int16_t * samples, const size_t nSamples, const int16_t  mean);
 		float StandardDeviationF(const float varience);
 		double StandardDeviationD(const double varience);
+		int16_t StandardDeviationI16(const int16_t varience);
 	}
 	namespace Convolution
 	{
@@ -46,7 +48,6 @@ namespace Signal
 			double* outputSignalRealComponent,
 			double* outputSignalComplexComponent);
 
-		// note magnitudeOutput is expected to be (componentArraySize / 2) in length
 		void DiscreteFourierTransformMagnitudeD(double* magnitudeOutput, const double* dftRealComponent, const double* dftComplexComponent, const size_t componentArraySize);
 
 		void InverseDiscreteFourierTransformD(double* outputSignal, const double* dftRealComponent, const double* dftComplexComponent, const size_t componentArraySize);
@@ -56,6 +57,9 @@ namespace Signal
 	{
 		void MovingAverageSubsquentPointsD(const double* inputSignal, const size_t inputSignalLength, double* output, size_t nPointsToAverage);
 		void MovingAverageSymetricallyChosenPointsD(const double* inputSignal, const size_t inputSignalLength, double* output, size_t nPointsToAverage);
+
+		// note the recursive is the DSP definition for the term (RecursiveMovingAverageD doesn't call itself)
+		void RecursiveMovingAverageD(const double* intputSignal, const size_t inputSignalLength, double* outputSignal, const size_t nPointsToAverage);
 
 		namespace Windowed
 		{
