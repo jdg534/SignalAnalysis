@@ -204,6 +204,15 @@ void Signal::Convolution::RunningSumF(const float* inputSignal, const size_t nSa
 	}
 }
 
+void Signal::Convolution::RunningSumI16(const int16_t* inputSignal, const size_t nSamplesInputSignal, int16_t* output)
+{
+	output[0] = inputSignal[0];
+	for (size_t i = 1; i < nSamplesInputSignal; ++i)
+	{
+		output[i] = output[i - 1] + inputSignal[i];
+	}
+}
+
 void Signal::Convolution::DifferenceD(const double* inputSignal, const size_t nSamplesInInputSignal, double* output)
 {
 	output[0] = 0.0;

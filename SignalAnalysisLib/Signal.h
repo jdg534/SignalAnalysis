@@ -41,6 +41,7 @@ namespace Signal
 		// output is expected to be nSamplesInputSignal in size
 		void RunningSumD(const double* inputSignal, const size_t nSamplesInputSignal, double* output);
 		void RunningSumF(const float* inputSignal, const size_t nSamplesInputSignal, float* output);
+		void RunningSumI16(const int16_t* inputSignal, const size_t nSamplesInputSignal, int16_t* output);
 
 		// output expected to be the same size as inputSignal
 		void DifferenceD(const double* inputSignal, const size_t nSamplesInInputSignal, double* output); 
