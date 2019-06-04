@@ -38,6 +38,22 @@ double Signal::Statistics::MeanD(const double* samples, const size_t nSamples)
 	return sum / static_cast<double>(nSamples);
 }
 
+int16_t MeanI16(const int16_t* samples, const size_t nSamples)
+{
+	// prevent runtime error
+	if (nSamples == 0 || samples == nullptr)
+	{
+		return 0;
+	}
+
+	int16_t sum = 0;
+	for (size_t i = 0; i < nSamples; ++i)
+	{
+		sum += samples[i];
+	}
+	return sum / static_cast<int16_t>(nSamples);
+}
+
 float Signal::Statistics::VarienceF(const float* samples, const size_t nSamples, const float mean)
 {
 	// prevent runtime error, need atleast 2 samples
