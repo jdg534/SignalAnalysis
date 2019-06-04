@@ -3,10 +3,9 @@
 
 #include <cstdint>
 
-// will go for name spaces as was the case in the Josh Maths library
 namespace Signal
 {
-	// support float, double, S16
+	// support float, double, INT16 (signed)
 
 	namespace Statistics
 	{
@@ -70,9 +69,13 @@ namespace Signal
 
 		namespace Windowed
 		{
+			// these require floating point arithmetic, can't support INT16, will look into alternatives
 			void HammingD(double* outputWindow, const size_t inputSignalLength);
+			void HammingF(float* outputWindow, const size_t inputSignalLength);
 			void BlackmanD(double* outputWindow, const size_t inputSignalLength);
+			void BlackmanF(float* outputWindow, const size_t inputSignalLength);
 			void SyncLowPassD(double* filterOutput, const size_t filterOutputSize, double cutoffFrequency);
+			void SyncLowPassF(float* filterOutput, const size_t filterOutputSize, float cutoffFrequency);
 		}
 	}
 }

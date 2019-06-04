@@ -388,6 +388,21 @@ void Signal::Filters::Windowed::HammingD(double* outputWindow, const size_t inpu
 	}
 }
 
+void Signal::Filters::Windowed::HammingF(float* outputWindow, const size_t inputSignalLength)
+{
+	// equation = w[i] = 0.54 - 0.46 * cos(2*PI*i / M)
+	// i = sample index
+	// M = number of samples
+
+	const float fltInputSigLength = static_cast<float>(inputSignalLength);
+	const float fltPi = static_cast<float>(M_PI); // done for type safety
+	float iterAsFlt = 0.0f;
+	for (size_t i = 0; i < inputSignalLength; ++i, ++iterAsFlt)
+	{
+		outputWindow[i] = 0.54f - 0.46f * cosf(2.0f * fltPi * iterAsFlt / fltInputSigLength);
+	}
+}
+
 void Signal::Filters::Windowed::BlackmanD(double* outputWindow, const size_t inputSignalLength)
 {
 	// do Blackman window next
@@ -400,7 +415,23 @@ void Signal::Filters::Windowed::BlackmanD(double* outputWindow, const size_t inp
 	double iterAsDbl = 0.0;
 	for (size_t i = 0; i < inputSignalLength; ++i, ++iterAsDbl)
 	{
-		outputWindow[i] = 0.42 - 0.5 * cos(2.0 * M_PI * iterAsDbl / dblInputSigLength) + 0.08 * cos(4 * M_PI * iterAsDbl / dblInputSigLength);
+		outputWindow[i] = 0.42 - 0.5 * cos(2.0 * M_PI * iterAsDbl / dblInputSigLength) + 0.08 * cos(4.0 * M_PI * iterAsDbl / dblInputSigLength);
+	}
+}
+
+void Signal::Filters::Windowed::BlackmanF(float* outputWindow, const size_t inputSignalLength)
+{
+	// do Blackman window next
+	// equation = w[i] = 0.42 - 0.5 * cos(2 * PI * i / M) + 0.08 * cos(4 * PI * i / M)
+	// i = sample index
+	// M = number of samples
+
+	const float fltInputSigLength = static_cast<float>(inputSignalLength);
+	const float fltPi = static_cast<float>(M_PI); // done for type safety
+	float iterAsFlt = 0.0f;
+	for (size_t i = 0; i < inputSignalLength; ++i, ++iterAsFlt)
+	{
+		outputWindow[i] = 0.42f - 0.5f * cosf(2.0f * fltPi * iterAsFlt / fltInputSigLength) + 0.08f * cosf(4.0f * fltPi * iterAsFlt / fltInputSigLength);
 	}
 }
 
@@ -423,6 +454,29 @@ void Signal::Filters::Windowed::SyncLowPassD(double* filterOutput, const size_t 
 			filterOutput[i] = sin(2.0 * M_PI * cutoffFrequency * (static_cast<double>(i - halfFilterLength)))
 				/ (static_cast<double>(i - halfFilterLength));
 			filterOutput[i] *= (0.54 - 0.46 * cos(2.0 * M_PI * iDbl / filterOutputSizeDbl));
+		}
+	}
+}
+
+void Signal::Filters::Windowed::SyncLowPassF(float* filterOutput, const size_t filterOutputSize, float cutoffFrequency)
+{
+	const int filterOutputSizeI = static_cast<int>(filterOutputSize); // need signed values
+	const int halfFilterLength = filterOutputSizeI / 2;
+
+	float iFlt = 0.0f;
+	const float filterOutputSizeFlt = static_cast<float>(filterOutputSize);
+	const float fltPi = static_cast<float>(M_PI); // done for type safety
+	for (int i = 0; i < filterOutputSizeI; ++i, ++iFlt)
+	{
+		if (i - halfFilterLength == 0) // half way point is a special value
+		{
+			filterOutput[i] = 2.0f * fltPi * cutoffFrequency;
+		}
+		else
+		{
+			filterOutput[i] = sinf(2.0f * fltPi * cutoffFrequency * (static_cast<float>(i - halfFilterLength)))
+				/ (static_cast<float>(i - halfFilterLength));
+			filterOutput[i] *= (0.54f - 0.46f * cosf(2.0f * fltPi * iFlt / filterOutputSizeFlt));
 		}
 	}
 }
