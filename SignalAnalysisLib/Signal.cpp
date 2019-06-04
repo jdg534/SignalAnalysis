@@ -63,9 +63,11 @@ float Signal::Statistics::VarienceF(const float* samples, const size_t nSamples,
 	}
 
 	float netVarience = 0.0f;
+	float deltaFromMean = 0.0f;
 	for (size_t i = 0; i < nSamples; ++i)
 	{
-		netVarience += powf(samples[i] - mean, 2);
+		deltaFromMean = samples[i] - mean;
+		netVarience += (deltaFromMean * deltaFromMean);
 	}
 	return netVarience / static_cast<float>(nSamples - 1);
 }
@@ -79,9 +81,11 @@ double Signal::Statistics::VarienceD(const double* samples, const size_t nSample
 	}
 
 	double netVarience = 0.0;
+	double deltaFromMean = 0.0;
 	for (size_t i = 0; i < nSamples; ++i)
 	{
-		netVarience += pow(samples[i] - mean, 2);
+		deltaFromMean = samples[i] - mean;
+		netVarience += (deltaFromMean * deltaFromMean);
 	}
 	return netVarience / static_cast<double>(nSamples - 1);
 }
@@ -91,13 +95,15 @@ int16_t Signal::Statistics::VarienceI16(const int16_t * samples, const size_t nS
 	// prevent runtime error, need at least 2 samples
 	if (nSamples <= 1 || samples == nullptr)
 	{
-		return 0.0;
+		return 0;
 	}
 
 	int16_t netVarience = 0;
+	int16_t deltaFromMean = 0;
 	for (size_t i = 0; i < nSamples; ++i)
 	{
-		netVarience += pow(samples[i] - mean, 2);
+		deltaFromMean = samples[i] - mean;
+		netVarience += (deltaFromMean * deltaFromMean);
 	}
 	return netVarience / static_cast<int16_t>(nSamples - 1);
 }
@@ -114,13 +120,13 @@ double Signal::Statistics::StandardDeviationD(const double varience)
 
 int16_t Signal::Statistics::StandardDeviationI16(const int16_t varience)
 {
-	return sqrt(varience);
+	return static_cast<int16_t>(sqrt(varience));
 }
 
 void Signal::Convolution::ConvolutionD(
 	const double* inputSignalSamples, const size_t nInputSignalSamples,
 	const double* inputSignalImpulseResponse, const size_t nElementInInputSignalImpulseResponse,
-	double* outputSignalSamples // note that outputSignalSamples is expected to be of have nInputSignalSamples + nElementInInputSignalImpulseResponse elements
+	double* outputSignalSamples // note that outputSignalSamples is expected to have (nInputSignalSamples + nElementInInputSignalImpulseResponse) elements
 	)
 {
 	// 0 the output buffer
@@ -141,11 +147,32 @@ void Signal::Convolution::ConvolutionD(
 void Signal::Convolution::ConvolutionF(
 	const float* inputSignalSamples, const size_t nInputSignalSamples,
 	const float* inputSignalImpulseResponse, const size_t nElementInInputSignalImpulseResponse,
-	float* outputSignalSamples // note that outputSignalSamples is expected to be of have nInputSignalSamples + nElementInInputSignalImpulseResponse elements
+	float* outputSignalSamples // note that outputSignalSamples is expected to have (nInputSignalSamples + nElementInInputSignalImpulseResponse) elements
 	)
 {
 	// 0 the output buffer
 	const size_t outputBufferMemSz = sizeof(float) * (nInputSignalSamples + nElementInInputSignalImpulseResponse);
+	std::memset(outputSignalSamples, 0, outputBufferMemSz);
+
+	// O(N ^ 2)
+	for (size_t i = 0; i < nInputSignalSamples; ++i)
+	{
+		for (size_t j = 0; j < nElementInInputSignalImpulseResponse; ++j)
+		{
+			outputSignalSamples[i + j] = outputSignalSamples[i + j] +
+				inputSignalSamples[i] * inputSignalImpulseResponse[j];
+		}
+	}
+}
+
+void Signal::Convolution::ConvolutionI16(
+	const int16_t* inputSignalSamples, const size_t nInputSignalSamples,
+	const int16_t* inputSignalImpulseResponse, const size_t nElementInInputSignalImpulseResponse,
+	int16_t* outputSignalSamples // note that outputSignalSamples is expected to have (nInputSignalSamples + nElementInInputSignalImpulseResponse) elements
+)
+{
+	// 0 the output buffer
+	const size_t outputBufferMemSz = sizeof(int16_t) * (nInputSignalSamples + nElementInInputSignalImpulseResponse);
 	std::memset(outputSignalSamples, 0, outputBufferMemSz);
 
 	// O(N ^ 2)
@@ -189,6 +216,15 @@ void Signal::Convolution::DifferenceD(const double* inputSignal, const size_t nS
 void Signal::Convolution::DifferenceF(const float* inputSignal, const size_t nSamplesInInputSignal, float* output)
 {
 	output[0] = 0.0f;
+	for (size_t i = 1; i < nSamplesInInputSignal; ++i)
+	{
+		output[i] = inputSignal[i] - inputSignal[i - 1];
+	}
+}
+
+void Signal::Convolution::DifferenceI16(const int16_t* inputSignal, const size_t nSamplesInInputSignal, int16_t* output)
+{
+	output[0] = 0;
 	for (size_t i = 1; i < nSamplesInInputSignal; ++i)
 	{
 		output[i] = inputSignal[i] - inputSignal[i - 1];
@@ -296,7 +332,7 @@ void Signal::Filters::MovingAverageSymetricallyChosenPointsD(const double* input
 	for (int i = 0; i < inputSignalLength; ++i)
 	{
 		average = 0.0;
-		const int posibleStartingIndex = i - halfNumPointsToAverage;
+		const int posibleStartingIndex = i - static_cast<int>(halfNumPointsToAverage);
 		const int sigAvgStartingPoint = posibleStartingIndex >= 0 ? posibleStartingIndex : 0; // start at i - halfNumPointsToAverage or the start of the array if we can't go back that far
 		for (size_t j = sigAvgStartingPoint; j < inputSignalLength && j < sigAvgStartingPoint + nPointsToAverage; ++j)
 		{
