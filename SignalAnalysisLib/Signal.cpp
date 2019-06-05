@@ -262,6 +262,73 @@ void Signal::FourierTransforms::DiscreteFourierTransformD(const double* inputSig
 	}
 }
 
+void Signal::FourierTransforms::DiscreteFourierTransformF(const float* inputSignal, const size_t inputSignalLength,
+	float* outputSignalRealComponent, float* outputSignalComplexComponent)
+{
+	// 0 the output arrays
+	const size_t outputArrayElements = (inputSignalLength / 2) + 1;
+	const size_t outputBufferMemSz = sizeof(float) * outputArrayElements;
+	std::memset(outputSignalRealComponent, 0, outputBufferMemSz);
+	std::memset(outputSignalComplexComponent, 0, outputBufferMemSz);
+
+	float iAsFlt = 0.0f, jAsFlt;
+	const float inputSignalLengthAsFlt = static_cast<float>(inputSignalLength);
+	const float fltPi = static_cast<float>(M_PI);
+	for (size_t i = 0; i < outputArrayElements; ++i, ++iAsFlt)
+	{
+		jAsFlt = 0.0f;
+		for (size_t j = 0; j < inputSignalLength; ++j, ++jAsFlt)
+		{
+			outputSignalRealComponent[i] += inputSignal[j] * cosf(2.0f * fltPi * iAsFlt * jAsFlt / inputSignalLengthAsFlt);
+			outputSignalComplexComponent[i] -= inputSignal[j] * sinf(2.0f * fltPi * iAsFlt * jAsFlt / inputSignalLengthAsFlt);
+		}
+	}
+}
+
+void Signal::FourierTransforms::DiscreteFourierTransformI16(const int16_t* inputSignal, const size_t inputSignalLength,
+	int16_t* outputSignalRealComponent, int16_t* outputSignalComplexComponent)
+{
+	// 0 the output arrays
+	const size_t outputArrayElements = (inputSignalLength / 2) + 1;
+	const size_t outputBufferMemSz = sizeof(int16_t) * outputArrayElements;
+	std::memset(outputSignalRealComponent, 0, outputBufferMemSz);
+	std::memset(outputSignalComplexComponent, 0, outputBufferMemSz);
+
+	float iAsFlt = 0.0f, jAsFlt;
+	const float inputSignalLengthAsFlt = static_cast<float>(inputSignalLength);
+	const float fltPi = static_cast<float>(M_PI);
+
+	// will need to put the int16 range values into float range values
+	// float range (logical) = -1.0 to 1.0 (no capping)
+	// INT16 range to -32768 t0 +32767
+	constexpr float scaleToFloatRange = 1.0f / 32767.0f;
+	constexpr float scaleToInt16Range = 32767.0f / 1.0f;
+
+	float fltRealComponent = 0.0f;
+	float fltComplexComponent = 0.0f;
+
+	for (size_t i = 0; i < outputArrayElements; ++i, ++iAsFlt)
+	{
+		jAsFlt = 0.0f;
+		for (size_t j = 0; j < inputSignalLength; ++j, ++jAsFlt)
+		{
+			fltRealComponent = static_cast<float>(inputSignal[j]);
+			fltComplexComponent = static_cast<float>(inputSignal[j]);
+			// put value into float range
+			fltRealComponent *= scaleToFloatRange;
+			fltComplexComponent *= scaleToFloatRange;
+			// calculate with float range logic
+			fltRealComponent *= cosf(2.0f * fltPi * iAsFlt * jAsFlt / inputSignalLengthAsFlt);
+			fltComplexComponent *= sinf(2.0f * fltPi * iAsFlt * jAsFlt / inputSignalLengthAsFlt);
+			// put calculated value into INT16 range
+			fltRealComponent *= scaleToInt16Range;
+			fltComplexComponent *= scaleToInt16Range;
+			outputSignalRealComponent[i] += static_cast<int16_t>(fltRealComponent);
+			outputSignalComplexComponent[i] -= static_cast<int16_t>(fltComplexComponent);
+		}
+	}
+}
+
 void Signal::FourierTransforms::DiscreteFourierTransformMagnitudeD(double* magnitudeOutput, const double* dftRealComponent, const double* dftComplexComponent, const size_t componentArraySize)
 {
 	for (size_t i = 0; i < componentArraySize; ++i)

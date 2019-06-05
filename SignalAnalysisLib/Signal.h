@@ -53,6 +53,12 @@ namespace Signal
 		void DiscreteFourierTransformD(const double* inputSignal, const size_t inputSignalLength, 
 			double* outputSignalRealComponent,
 			double* outputSignalComplexComponent);
+		void DiscreteFourierTransformF(const float* inputSignal, const size_t inputSignalLength,
+			float* outputSignalRealComponent,
+			float* outputSignalComplexComponent);
+		void DiscreteFourierTransformI16(const int16_t* inputSignal, const size_t inputSignalLength,
+			int16_t* outputSignalRealComponent,
+			int16_t* outputSignalComplexComponent);
 
 		void DiscreteFourierTransformMagnitudeD(double* magnitudeOutput, const double* dftRealComponent, const double* dftComplexComponent, const size_t componentArraySize);
 
