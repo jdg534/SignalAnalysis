@@ -330,13 +330,45 @@ void Signal::Filters::MovingAverageSubsquentPointsD(const double* inputSignal, c
 	}
 }
 
+void Signal::Filters::MovingAverageSubsquentPointsF(const float* inputSignal, const size_t inputSignalLength, float* output, size_t nPointsToAverage)
+{
+	const float nPointsToAvgAsFlt = static_cast<float>(nPointsToAverage);
+	float average;
+
+	for (size_t i = 0; i < inputSignalLength; ++i)
+	{
+		average = 0.0f;
+		for (size_t j = i; j < inputSignalLength && j < nPointsToAverage + i; ++j)
+		{
+			average += inputSignal[j];
+		}
+		average /= nPointsToAvgAsFlt;
+		output[i] = average;
+	}
+}
+
+void Signal::Filters::MovingAverageSubsquentPointsI16(const int16_t* inputSignal, const size_t inputSignalLength, int16_t* output, size_t nPointsToAverage)
+{
+	const int16_t nPointsToAvgAsI16 = static_cast<int16_t>(nPointsToAverage);
+	int16_t average;
+
+	for (size_t i = 0; i < inputSignalLength; ++i)
+	{
+		average = 0;
+		for (size_t j = i; j < inputSignalLength && j < nPointsToAverage + i; ++j)
+		{
+			average += inputSignal[j];
+		}
+		average /= nPointsToAvgAsI16;
+		output[i] = average;
+	}
+}
+
 void Signal::Filters::MovingAverageSymetricallyChosenPointsD(const double* inputSignal, const size_t inputSignalLength, double* output, size_t nPointsToAverage)
 {
 	const double nPointsToAvgAsDbl = static_cast<double>(nPointsToAverage);
 	double average;
-
 	const size_t halfNumPointsToAverage = nPointsToAverage / 2;
-	const int inputSigLenAsSignedInt = static_cast<int>(inputSignalLength);
 
 	for (int i = 0; i < inputSignalLength; ++i)
 	{
@@ -348,6 +380,47 @@ void Signal::Filters::MovingAverageSymetricallyChosenPointsD(const double* input
 			average += inputSignal[j];
 		}
 		average /= nPointsToAvgAsDbl;
+		output[i] = average;
+	}
+}
+
+void Signal::Filters::MovingAverageSymetricallyChosenPointsF(const float* inputSignal, const size_t inputSignalLength, float* output, size_t nPointsToAverage)
+{
+	const float nPointsToAvgAsFlt = static_cast<float>(nPointsToAverage);
+	float average;
+
+	const size_t halfNumPointsToAverage = nPointsToAverage / 2;
+
+	for (int i = 0; i < inputSignalLength; ++i)
+	{
+		average = 0.0;
+		const int posibleStartingIndex = i - static_cast<int>(halfNumPointsToAverage);
+		const int sigAvgStartingPoint = posibleStartingIndex >= 0 ? posibleStartingIndex : 0; // start at i - halfNumPointsToAverage or the start of the array if we can't go back that far
+		for (size_t j = sigAvgStartingPoint; j < inputSignalLength && j < sigAvgStartingPoint + nPointsToAverage; ++j)
+		{
+			average += inputSignal[j];
+		}
+		average /= nPointsToAvgAsFlt;
+		output[i] = average;
+	}
+}
+
+void Signal::Filters::MovingAverageSymetricallyChosenPointsI16(const int16_t* inputSignal, const size_t inputSignalLength, int16_t* output, size_t nPointsToAverage)
+{
+	const int16_t nPointsToAvgAsFlt = static_cast<int16_t>(nPointsToAverage);
+	int16_t average;
+	const size_t halfNumPointsToAverage = nPointsToAverage / 2;
+
+	for (int i = 0; i < inputSignalLength; ++i)
+	{
+		average = 0;
+		const int posibleStartingIndex = i - static_cast<int>(halfNumPointsToAverage);
+		const int sigAvgStartingPoint = posibleStartingIndex >= 0 ? posibleStartingIndex : 0; // start at i - halfNumPointsToAverage or the start of the array if we can't go back that far
+		for (size_t j = sigAvgStartingPoint; j < inputSignalLength && j < sigAvgStartingPoint + nPointsToAverage; ++j)
+		{
+			average += inputSignal[j];
+		}
+		average /= nPointsToAvgAsFlt;
 		output[i] = average;
 	}
 }
@@ -370,6 +443,48 @@ void Signal::Filters::RecursiveMovingAverageD(const double* intputSignal, const 
 	{
 		accum += intputSignal[i + ((nPointsToAverage - 1) / 2)] - intputSignal[i - halfNumPointsToAvg];
 		outputSignal[i] = accum / static_cast<double>(nPointsToAverage);
+	}
+}
+
+void Signal::Filters::RecursiveMovingAverageF(const float* intputSignal, const size_t inputSignalLength, float* outputSignal, const size_t nPointsToAverage)
+{
+	// 0 the output buffer
+	const size_t outSigSZInMem = inputSignalLength * sizeof(float);
+	memset(outputSignal, 0, outSigSZInMem);
+
+	float accum = 0.0;
+	for (size_t i = 0; i < nPointsToAverage - 1; ++i)
+	{
+		accum += intputSignal[i];
+	}
+
+	outputSignal[(nPointsToAverage - 1 / 2)] = accum / static_cast<float>(nPointsToAverage);
+	const size_t halfNumPointsToAvg = nPointsToAverage / 2;
+	for (size_t i = halfNumPointsToAvg; i < inputSignalLength - halfNumPointsToAvg - 1; ++i)
+	{
+		accum += intputSignal[i + ((nPointsToAverage - 1) / 2)] - intputSignal[i - halfNumPointsToAvg];
+		outputSignal[i] = accum / static_cast<float>(nPointsToAverage);
+	}
+}
+
+void Signal::Filters::RecursiveMovingAverageI16(const int16_t* intputSignal, const size_t inputSignalLength, int16_t* outputSignal, const size_t nPointsToAverage)
+{
+	// 0 the output buffer
+	const size_t outSigSZInMem = inputSignalLength * sizeof(int16_t);
+	memset(outputSignal, 0, outSigSZInMem);
+
+	int16_t accum = 0;
+	for (size_t i = 0; i < nPointsToAverage - 1; ++i)
+	{
+		accum += intputSignal[i];
+	}
+
+	outputSignal[(nPointsToAverage - 1 / 2)] = accum / static_cast<int16_t>(nPointsToAverage);
+	const size_t halfNumPointsToAvg = nPointsToAverage / 2;
+	for (size_t i = halfNumPointsToAvg; i < inputSignalLength - halfNumPointsToAvg - 1; ++i)
+	{
+		accum += intputSignal[i + ((nPointsToAverage - 1) / 2)] - intputSignal[i - halfNumPointsToAvg];
+		outputSignal[i] = accum / static_cast<int16_t>(nPointsToAverage);
 	}
 }
 

@@ -62,10 +62,16 @@ namespace Signal
 	namespace Filters
 	{
 		void MovingAverageSubsquentPointsD(const double* inputSignal, const size_t inputSignalLength, double* output, size_t nPointsToAverage);
+		void MovingAverageSubsquentPointsF(const float* inputSignal, const size_t inputSignalLength, float* output, size_t nPointsToAverage);
+		void MovingAverageSubsquentPointsI16(const int16_t* inputSignal, const size_t inputSignalLength, int16_t* output, size_t nPointsToAverage);
 		void MovingAverageSymetricallyChosenPointsD(const double* inputSignal, const size_t inputSignalLength, double* output, size_t nPointsToAverage);
+		void MovingAverageSymetricallyChosenPointsF(const float* inputSignal, const size_t inputSignalLength, float* output, size_t nPointsToAverage);
+		void MovingAverageSymetricallyChosenPointsI16(const int16_t* inputSignal, const size_t inputSignalLength, int16_t* output, size_t nPointsToAverage);
 
 		// note the recursive is the DSP definition for the term (RecursiveMovingAverageD doesn't call itself)
 		void RecursiveMovingAverageD(const double* intputSignal, const size_t inputSignalLength, double* outputSignal, const size_t nPointsToAverage);
+		void RecursiveMovingAverageF(const float* intputSignal, const size_t inputSignalLength, float* outputSignal, const size_t nPointsToAverage);
+		void RecursiveMovingAverageI16(const int16_t* intputSignal, const size_t inputSignalLength, int16_t* outputSignal, const size_t nPointsToAverage);
 
 		namespace Windowed
 		{
