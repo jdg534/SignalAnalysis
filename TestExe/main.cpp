@@ -137,7 +137,7 @@ int main()
 	DumpWaveformToTextFileD("RunningSum.Signal", runningSumArray, inputSignalArrayElementCount);
 	DumpWaveformToTextFileD("ConvolutionDifference.Signal", convDifferenceArray, inputSignalArrayElementCount);
 	DumpWaveformToTextFileD("DFT_RealComponent.Signal", waveformRealComponent, dftOutputArrayElementCount);
-	DumpWaveformToTextFileD("DFT_ComplexComponent.Signal", waveformRealComponent, dftOutputArrayElementCount);
+	DumpWaveformToTextFileD("DFT_ComplexComponent.Signal", waveformComplexComponent, dftOutputArrayElementCount);
 	DumpWaveformToTextFileD("DFT_Magnitude.Signal", dftMag, dftOutputArrayElementCount);
 	DumpWaveformToTextFileD("IDFT.Signal", idftArray, inputSignalArrayElementCount);
 	DumpWaveformToTextFileD("MovAvgLin.Signal", waveformMovAvgLinFilter, inputSignalArrayElementCount);
