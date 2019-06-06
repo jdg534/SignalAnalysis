@@ -85,13 +85,15 @@ namespace Signal
 
 		namespace Windowed
 		{
-			// these require floating point arithmetic, can't support INT16, will look into alternatives
 			void HammingD(double* outputWindow, const size_t inputSignalLength);
 			void HammingF(float* outputWindow, const size_t inputSignalLength);
+			void HammingI16(int16_t* outputWindow, const size_t inputSignalLength);
 			void BlackmanD(double* outputWindow, const size_t inputSignalLength);
 			void BlackmanF(float* outputWindow, const size_t inputSignalLength);
+			void BlackmanI16(int16_t* outputWindow, const size_t inputSignalLength);
 			void SyncLowPassD(double* filterOutput, const size_t filterOutputSize, double cutoffFrequency);
 			void SyncLowPassF(float* filterOutput, const size_t filterOutputSize, float cutoffFrequency);
+			void SyncLowPassI16(int16_t* filterOutput, const size_t filterOutputSize, double cutoffFrequency);
 		}
 	}
 }

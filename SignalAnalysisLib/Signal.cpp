@@ -710,9 +710,27 @@ void Signal::Filters::Windowed::HammingF(float* outputWindow, const size_t input
 	}
 }
 
+void Signal::Filters::Windowed::HammingI16(int16_t* outputWindow, const size_t inputSignalLength)
+{
+	// equation = w[i] = 0.54 - 0.46 * cos(2*PI*i / M)
+	// i = sample index
+	// M = number of samples
+
+	const double dblInputSigLength = static_cast<double>(inputSignalLength);
+
+	double iterAsDbl = 0.0;
+	double valueAtI = 0.0;
+	constexpr double scaleToInt16Range = 32767.0 / 1.0;
+	for (size_t i = 0; i < inputSignalLength; ++i, ++iterAsDbl)
+	{
+		valueAtI = 0.54 - 0.46 * cos(2.0 * M_PI * iterAsDbl / dblInputSigLength);
+		valueAtI *= scaleToInt16Range;
+		outputWindow[i] = static_cast<int16_t>(valueAtI);
+	}
+}
+
 void Signal::Filters::Windowed::BlackmanD(double* outputWindow, const size_t inputSignalLength)
 {
-	// do Blackman window next
 	// equation = w[i] = 0.42 - 0.5 * cos(2 * PI * i / M) + 0.08 * cos(4 * PI * i / M)
 	// i = sample index
 	// M = number of samples
@@ -728,7 +746,6 @@ void Signal::Filters::Windowed::BlackmanD(double* outputWindow, const size_t inp
 
 void Signal::Filters::Windowed::BlackmanF(float* outputWindow, const size_t inputSignalLength)
 {
-	// do Blackman window next
 	// equation = w[i] = 0.42 - 0.5 * cos(2 * PI * i / M) + 0.08 * cos(4 * PI * i / M)
 	// i = sample index
 	// M = number of samples
@@ -739,6 +756,25 @@ void Signal::Filters::Windowed::BlackmanF(float* outputWindow, const size_t inpu
 	for (size_t i = 0; i < inputSignalLength; ++i, ++iterAsFlt)
 	{
 		outputWindow[i] = 0.42f - 0.5f * cosf(2.0f * fltPi * iterAsFlt / fltInputSigLength) + 0.08f * cosf(4.0f * fltPi * iterAsFlt / fltInputSigLength);
+	}
+}
+
+void Signal::Filters::Windowed::BlackmanI16(int16_t* outputWindow, const size_t inputSignalLength)
+{
+	// equation = w[i] = 0.42 - 0.5 * cos(2 * PI * i / M) + 0.08 * cos(4 * PI * i / M)
+	// i = sample index
+	// M = number of samples
+
+	const double dblInputSigLength = static_cast<double>(inputSignalLength);
+	double valueAtI = 0.0;
+	constexpr double scaleToInt16Range = 32767.0 / 1.0;
+
+	double iterAsDbl = 0.0;
+	for (size_t i = 0; i < inputSignalLength; ++i, ++iterAsDbl)
+	{
+		valueAtI = 0.42 - 0.5 * cos(2.0 * M_PI * iterAsDbl / dblInputSigLength) + 0.08 * cos(4.0 * M_PI * iterAsDbl / dblInputSigLength);
+		valueAtI *= scaleToInt16Range;
+		outputWindow[i] = static_cast<int16_t>(valueAtI);
 	}
 }
 
@@ -784,6 +820,36 @@ void Signal::Filters::Windowed::SyncLowPassF(float* filterOutput, const size_t f
 			filterOutput[i] = sinf(2.0f * fltPi * cutoffFrequency * (static_cast<float>(i - halfFilterLength)))
 				/ (static_cast<float>(i - halfFilterLength));
 			filterOutput[i] *= (0.54f - 0.46f * cosf(2.0f * fltPi * iFlt / filterOutputSizeFlt));
+		}
+	}
+}
+
+void Signal::Filters::Windowed::SyncLowPassI16(int16_t* filterOutput, const size_t filterOutputSize, double cutoffFrequency)
+{
+	const int filterOutputSizeI = static_cast<int>(filterOutputSize); // need signed values
+	const int halfFilterLength = filterOutputSizeI / 2;
+
+	double iDbl = 0.0;
+	const double filterOutputSizeDbl = static_cast<double>(filterOutputSize);
+
+	constexpr double scaleToInt16Range = 32767.0 / 1.0;
+	double iThValue = 0.0;
+
+	for (int i = 0; i < filterOutputSizeI; ++i, ++iDbl)
+	{
+		if (i - halfFilterLength == 0) // half way point is a special value
+		{
+			iThValue = 2.0 * M_PI * cutoffFrequency;
+			iThValue *= scaleToInt16Range;
+			filterOutput[i] = static_cast<int16_t>(iThValue);
+		}
+		else
+		{
+			iThValue = sin(2.0 * M_PI * cutoffFrequency * (static_cast<double>(i - halfFilterLength)))
+				/ (static_cast<double>(i - halfFilterLength));
+			iThValue *= (0.54 - 0.46 * cos(2.0 * M_PI * iDbl / filterOutputSizeDbl));
+			iThValue *= scaleToInt16Range;
+			filterOutput[i] = static_cast<int16_t>(iThValue);
 		}
 	}
 }
