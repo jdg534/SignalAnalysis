@@ -340,6 +340,28 @@ void Signal::FourierTransforms::DiscreteFourierTransformMagnitudeD(double* magni
 	}
 }
 
+void Signal::FourierTransforms::DiscreteFourierTransformMagnitudeF(float* magnitudeOutput, const float* dftRealComponent, const float* dftComplexComponent, const size_t componentArraySize)
+{
+	for (size_t i = 0; i < componentArraySize; ++i)
+	{
+		magnitudeOutput[i] = sqrtf(
+			(dftRealComponent[i] * dftRealComponent[i])
+			+ (dftComplexComponent[i] * dftComplexComponent[i])
+		);
+	}
+}
+
+void Signal::FourierTransforms::DiscreteFourierTransformMagnitudei16(int16_t* magnitudeOutput, const int16_t* dftRealComponent, const int16_t* dftComplexComponent, const size_t componentArraySize)
+{
+	int16_t squaredComps;
+	for (size_t i = 0; i < componentArraySize; ++i)
+	{
+		squaredComps = (dftRealComponent[i] * dftRealComponent[i])
+			+ (dftComplexComponent[i] * dftComplexComponent[i]);
+		magnitudeOutput[i] = static_cast<int16_t>(sqrt(squaredComps));
+	}
+}
+
 void Signal::FourierTransforms::InverseDiscreteFourierTransformD(double* outputSignal, const double* dftRealComponent, const double* dftComplexComponent, const size_t componentArraySize)
 {
 	const size_t dftComponentArraySizeInMemory = componentArraySize * sizeof(double);
@@ -372,6 +394,109 @@ void Signal::FourierTransforms::InverseDiscreteFourierTransformD(double* outputS
 		{
 			outputSignal[outputSignalSampleIndex] += copyOfDftRealComponent[dftSampleIndex] * cos(2.0 * M_PI * dblDftSampleIndex * dblOutputSigSampleIndex / iDftLength);
 			outputSignal[outputSignalSampleIndex] += copyOfDftComplexComponent[dftSampleIndex] * sin(2.0 * M_PI * dblDftSampleIndex * dblOutputSigSampleIndex / iDftLength);
+		}
+	}
+
+	// clean up don't want to leak memory
+	free(copyOfDftRealComponent);
+	free(copyOfDftComplexComponent);
+}
+
+void Signal::FourierTransforms::InverseDiscreteFourierTransformF(float* outputSignal, const float* dftRealComponent, const float* dftComplexComponent, const size_t componentArraySize)
+{
+	const size_t dftComponentArraySizeInMemory = componentArraySize * sizeof(float);
+	// need to convert the contents of dftRealComponent and dftComplexComponent, this requires making copies
+	float* copyOfDftRealComponent = (float*)malloc(dftComponentArraySizeInMemory);
+	float* copyOfDftComplexComponent = (float*)malloc(dftComponentArraySizeInMemory);
+	memcpy(copyOfDftRealComponent, dftRealComponent, dftComponentArraySizeInMemory);
+	memcpy(copyOfDftComplexComponent, dftComplexComponent, dftComponentArraySizeInMemory);
+
+	const size_t outSigArraySize = (componentArraySize - 1) * 2;
+
+	// convert the component array's samples be: sample[i] /= (outSigArraySize / 2)
+	const float outSigArraySizeOverTwo = static_cast<float>(outSigArraySize) / 2.0f;
+	for (size_t i = 0; i < componentArraySize; ++i)
+	{
+		copyOfDftRealComponent[i] /= outSigArraySizeOverTwo;
+		copyOfDftComplexComponent[i] /= outSigArraySizeOverTwo;
+	}
+
+	// 0 the output array	
+	const size_t outSizeMemSize = outSigArraySize * sizeof(float);
+	std::memset(outputSignal, 0, outSizeMemSize);
+
+	const float iDftLength = static_cast<float>(outSigArraySize);
+	float dblDftSampleIndex = 0.0f, dblOutputSigSampleIndex = 0.0f;
+	const float fltPi = static_cast<float>(M_PI);
+	for (size_t dftSampleIndex = 0; dftSampleIndex < componentArraySize; ++dftSampleIndex, ++dblDftSampleIndex)
+	{
+		dblOutputSigSampleIndex = 0.0f;
+		for (size_t outputSignalSampleIndex = 0; outputSignalSampleIndex < outSigArraySize; ++outputSignalSampleIndex, ++dblOutputSigSampleIndex)
+		{
+			outputSignal[outputSignalSampleIndex] += copyOfDftRealComponent[dftSampleIndex] * cos(2.0f * fltPi * dblDftSampleIndex * dblOutputSigSampleIndex / iDftLength);
+			outputSignal[outputSignalSampleIndex] += copyOfDftComplexComponent[dftSampleIndex] * sin(2.0f * fltPi * dblDftSampleIndex * dblOutputSigSampleIndex / iDftLength);
+		}
+	}
+
+	// clean up don't want to leak memory
+	free(copyOfDftRealComponent);
+	free(copyOfDftComplexComponent);
+}
+
+void Signal::FourierTransforms::InverseDiscreteFourierTransformI16(int16_t* outputSignal, const int16_t* dftRealComponent, const int16_t* dftComplexComponent, const size_t componentArraySize)
+{
+	// just to the double logic and convert numbers to the correct value range
+
+	const size_t dftComponentArraySizeInMemory = componentArraySize * sizeof(int16_t);
+	// need to convert the contents of dftRealComponent and dftComplexComponent, this requires making copies
+	int16_t* copyOfDftRealComponent = (int16_t*)malloc(dftComponentArraySizeInMemory);
+	int16_t* copyOfDftComplexComponent = (int16_t*)malloc(dftComponentArraySizeInMemory);
+	memcpy(copyOfDftRealComponent, dftRealComponent, dftComponentArraySizeInMemory);
+	memcpy(copyOfDftComplexComponent, dftComplexComponent, dftComponentArraySizeInMemory);
+
+	const size_t outSigArraySize = (componentArraySize - 1) * 2;
+
+	// convert the component array's samples be: sample[i] /= (outSigArraySize / 2)
+	const int16_t outSigArraySizeOverTwo = static_cast<int16_t>(outSigArraySize) / 2;
+	for (size_t i = 0; i < componentArraySize; ++i)
+	{
+		copyOfDftRealComponent[i] /= outSigArraySizeOverTwo;
+		copyOfDftComplexComponent[i] /= outSigArraySizeOverTwo;
+	}
+
+	// 0 the output array	
+	const size_t outSizeMemSize = outSigArraySize * sizeof(int16_t);
+	std::memset(outputSignal, 0, outSizeMemSize);
+
+	// following are used for calculating the IDTF note that we're scaling from INT16 range to double range then convert back to store the calculated value
+	const double iDftLength = static_cast<double>(outSigArraySize);
+	double dblDftSampleIndex = 0.0, dblOutputSigSampleIndex = 0.0;
+
+	// will need to put the int16 range values into float range values
+	// double range (logical) = -1.0 to 1.0 (no capping)
+	// INT16 range to -32768 t0 +32767
+	constexpr double scaleToDoubleRange = 1.0 / 32767.0;
+	constexpr double scaleToInt16Range = 32767.0 / 1.0;
+
+	double realComponent, complexComponent;
+
+	for (size_t dftSampleIndex = 0; dftSampleIndex < componentArraySize; ++dftSampleIndex, ++dblDftSampleIndex)
+	{
+		dblOutputSigSampleIndex = 0.0;
+		for (size_t outputSignalSampleIndex = 0; outputSignalSampleIndex < outSigArraySize; ++outputSignalSampleIndex, ++dblOutputSigSampleIndex)
+		{
+			realComponent = static_cast<double>(copyOfDftRealComponent[dftSampleIndex]);
+			complexComponent = static_cast<double>(copyOfDftComplexComponent[dftSampleIndex]);
+			// scale value to double range
+			realComponent *= scaleToDoubleRange;
+			complexComponent *= scaleToDoubleRange;
+			// perform the calculation
+			realComponent *= cos(2.0 * M_PI * dblDftSampleIndex * dblOutputSigSampleIndex / iDftLength);
+			complexComponent *= sin(2.0 * M_PI * dblDftSampleIndex * dblOutputSigSampleIndex / iDftLength);
+			// scale value back into INT16 range
+			realComponent *= scaleToInt16Range;
+			complexComponent *= scaleToInt16Range;
+			outputSignal[outputSignalSampleIndex] += static_cast<int16_t>(realComponent + complexComponent);
 		}
 	}
 

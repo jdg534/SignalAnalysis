@@ -61,8 +61,12 @@ namespace Signal
 			int16_t* outputSignalComplexComponent);
 
 		void DiscreteFourierTransformMagnitudeD(double* magnitudeOutput, const double* dftRealComponent, const double* dftComplexComponent, const size_t componentArraySize);
+		void DiscreteFourierTransformMagnitudeF(float* magnitudeOutput, const float* dftRealComponent, const float* dftComplexComponent, const size_t componentArraySize);
+		void DiscreteFourierTransformMagnitudei16(int16_t* magnitudeOutput, const int16_t* dftRealComponent, const int16_t* dftComplexComponent, const size_t componentArraySize);
 
 		void InverseDiscreteFourierTransformD(double* outputSignal, const double* dftRealComponent, const double* dftComplexComponent, const size_t componentArraySize);
+		void InverseDiscreteFourierTransformF(float* outputSignal, const float* dftRealComponent, const float* dftComplexComponent, const size_t componentArraySize);
+		void InverseDiscreteFourierTransformI16(int16_t* outputSignal, const int16_t* dftRealComponent, const int16_t* dftComplexComponent, const size_t componentArraySize);
 	}
 
 	namespace Filters
