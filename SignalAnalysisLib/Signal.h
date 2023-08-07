@@ -50,6 +50,8 @@ namespace Signal
 
 	namespace FourierTransforms
 	{
+		size_t OutputSamplesLength(const size_t inputSignalLength);
+
 		void DiscreteFourierTransformD(const double* inputSignal, const size_t inputSignalLength, 
 			double* outputSignalRealComponent,
 			double* outputSignalComplexComponent);
@@ -67,6 +69,12 @@ namespace Signal
 		void InverseDiscreteFourierTransformD(double* outputSignal, const double* dftRealComponent, const double* dftComplexComponent, const size_t componentArraySize);
 		void InverseDiscreteFourierTransformF(float* outputSignal, const float* dftRealComponent, const float* dftComplexComponent, const size_t componentArraySize);
 		void InverseDiscreteFourierTransformI16(int16_t* outputSignal, const int16_t* dftRealComponent, const int16_t* dftComplexComponent, const size_t componentArraySize);
+
+		// note output is expected to be OutputSamplesLength() in length.
+		void DiscreteFourierTransformFullF(const float* inputSignal, const size_t inputSignalLength, float* output);
+
+		void DiscreteFourierTransformFullTargetFrequenciesF(const float* inputSignal, const size_t inputSignalLength,
+			const size_t numTargetFrequencies, const float* targetFrequencies, float* output);
 	}
 
 	namespace Filters
@@ -95,6 +103,18 @@ namespace Signal
 			void SyncLowPassF(float* filterOutput, const size_t filterOutputSize, float cutoffFrequency);
 			void SyncLowPassI16(int16_t* filterOutput, const size_t filterOutputSize, double cutoffFrequency);
 		}
+	}
+
+	// scale every sample to 1.0/<max(abs(N))>
+	namespace Normalisation
+	{
+		void NormaliseF(float* signal, const size_t length);
+	}
+
+	namespace Conversion
+	{
+		void i16ToF(const int16_t* toConvert, const size_t length, float* output);
+		void fToI16(const float* toConvert, const size_t length, int16_t* output);
 	}
 }
 

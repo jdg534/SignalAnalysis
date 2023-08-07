@@ -240,11 +240,16 @@ void Signal::Convolution::DifferenceI16(const int16_t* inputSignal, const size_t
 	}
 }
 
+size_t Signal::FourierTransforms::OutputSamplesLength(const size_t inputSignalLength)
+{
+	return (inputSignalLength / 2) + 1;
+}
+
 void Signal::FourierTransforms::DiscreteFourierTransformD(const double* inputSignal, const size_t inputSignalLength,
 	double* outputSignalRealComponent, double* outputSignalComplexComponent)
 {
 	// 0 the output arrays
-	const size_t outputArrayElements = (inputSignalLength / 2) + 1;
+	const size_t outputArrayElements = OutputSamplesLength(inputSignalLength);
 	const size_t outputBufferMemSz = sizeof(double) * outputArrayElements;
 	std::memset(outputSignalRealComponent, 0, outputBufferMemSz);
 	std::memset(outputSignalComplexComponent, 0, outputBufferMemSz);
@@ -266,7 +271,7 @@ void Signal::FourierTransforms::DiscreteFourierTransformF(const float* inputSign
 	float* outputSignalRealComponent, float* outputSignalComplexComponent)
 {
 	// 0 the output arrays
-	const size_t outputArrayElements = (inputSignalLength / 2) + 1;
+	const size_t outputArrayElements = OutputSamplesLength(inputSignalLength);
 	const size_t outputBufferMemSz = sizeof(float) * outputArrayElements;
 	std::memset(outputSignalRealComponent, 0, outputBufferMemSz);
 	std::memset(outputSignalComplexComponent, 0, outputBufferMemSz);
@@ -289,7 +294,7 @@ void Signal::FourierTransforms::DiscreteFourierTransformI16(const int16_t* input
 	int16_t* outputSignalRealComponent, int16_t* outputSignalComplexComponent)
 {
 	// 0 the output arrays
-	const size_t outputArrayElements = (inputSignalLength / 2) + 1;
+	const size_t outputArrayElements = OutputSamplesLength(inputSignalLength);
 	const size_t outputBufferMemSz = sizeof(int16_t) * outputArrayElements;
 	std::memset(outputSignalRealComponent, 0, outputBufferMemSz);
 	std::memset(outputSignalComplexComponent, 0, outputBufferMemSz);
@@ -503,6 +508,57 @@ void Signal::FourierTransforms::InverseDiscreteFourierTransformI16(int16_t* outp
 	// clean up don't want to leak memory
 	free(copyOfDftRealComponent);
 	free(copyOfDftComplexComponent);
+}
+
+void Signal::FourierTransforms::DiscreteFourierTransformFullF(const float* inputSignal, const size_t inputSignalLength, float* output)
+{
+	// 0 the output array
+	const size_t outputArrayElements = OutputSamplesLength(inputSignalLength);
+	const size_t outputBufferMemSz = sizeof(float) * outputArrayElements;
+	std::memset(output, 0, outputBufferMemSz);
+
+	// DiscreteFourierTransformF 
+	float iAsFlt = 0.0f, jAsFlt = 0.0f;
+	const float inputSignalLengthAsFlt = static_cast<float>(inputSignalLength);
+	const float fltPi = static_cast<float>(M_PI);
+	float currentFrequencyRealComponent = 0.0f, currentFrequencyComplexComponent = 0.0f;
+	for (size_t i = 0; i < outputArrayElements; ++i, ++iAsFlt)
+	{
+		jAsFlt = 0.0f;
+		currentFrequencyRealComponent = 0.0f, currentFrequencyComplexComponent = 0.0f;
+		for (size_t j = 0; j < inputSignalLength; ++j, ++jAsFlt)
+		{
+			currentFrequencyRealComponent += inputSignal[j] * cosf(2.0f * fltPi * iAsFlt * jAsFlt / inputSignalLengthAsFlt);
+			currentFrequencyComplexComponent -= inputSignal[j] * sinf(2.0f * fltPi * iAsFlt * jAsFlt / inputSignalLengthAsFlt);
+		}
+		output[i] = sqrtf((currentFrequencyRealComponent * currentFrequencyRealComponent)
+			+ (currentFrequencyComplexComponent * currentFrequencyComplexComponent));
+	}
+}
+
+void Signal::FourierTransforms::DiscreteFourierTransformFullTargetFrequenciesF(const float* inputSignal, const size_t inputSignalLength,
+	const size_t numTargetFrequencies, const float* targetFrequencies, float* output)
+{
+	// 0 the output array
+	const size_t outputBufferMemSz = sizeof(float) * numTargetFrequencies;
+	std::memset(output, 0, outputBufferMemSz);
+
+	float jAsFlt = 0.0f;
+	const float inputSignalLengthAsFlt = static_cast<float>(inputSignalLength);
+	const float fltPi = static_cast<float>(M_PI);
+	float currentFrequencyRealComponent = 0.0f, currentFrequencyComplexComponent = 0.0f;
+	for (size_t frequencyIndex = 0; frequencyIndex < numTargetFrequencies; ++frequencyIndex)
+	{
+		jAsFlt = 0.0f;
+		currentFrequencyRealComponent = 0.0f, currentFrequencyComplexComponent = 0.0f;
+		for (size_t j = 0; j < inputSignalLength; ++j, ++jAsFlt)
+		{
+			currentFrequencyRealComponent += inputSignal[j] * cosf(2.0f * fltPi * targetFrequencies[frequencyIndex] * jAsFlt / inputSignalLengthAsFlt);
+			currentFrequencyComplexComponent -= inputSignal[j] * sinf(2.0f * fltPi * targetFrequencies[frequencyIndex] * jAsFlt / inputSignalLengthAsFlt);
+		}
+		output[frequencyIndex] = sqrtf((currentFrequencyRealComponent * currentFrequencyRealComponent)
+			+ (currentFrequencyComplexComponent * currentFrequencyComplexComponent));
+	}
 }
 
 void Signal::Filters::MovingAverageSubsquentPointsD(const double* inputSignal, const size_t inputSignalLength, double* output, size_t nPointsToAverage)
@@ -851,5 +907,39 @@ void Signal::Filters::Windowed::SyncLowPassI16(int16_t* filterOutput, const size
 			iThValue *= scaleToInt16Range;
 			filterOutput[i] = static_cast<int16_t>(iThValue);
 		}
+	}
+}
+
+void Signal::Normalisation::NormaliseF(float* signal, const size_t length)
+{
+	float max = 0.0f;
+	for (size_t i = 0; i < length; ++i)
+	{
+		max = std::max(max, std::abs(signal[i]));
+	}
+	const float scaleBy = 1.0f / max;
+	for (size_t i = 0; i < length; ++i)
+	{
+		signal[i] *= scaleBy;
+	}
+}
+
+void Signal::Conversion::i16ToF(const int16_t* toConvert, const size_t length, float* output)
+{
+	// from (-32768 to 32767) to (-1.0f to 1.0f)
+	static constexpr float SCALER = 1.0f / 32768.0f;
+	for (size_t i = 0; i < length; ++i)
+	{
+		output[i] = static_cast<float>(toConvert[i]) * SCALER;
+	}
+}
+
+void Signal::Conversion::fToI16(const float* toConvert, const size_t length, int16_t* output)
+{
+	// from (-1.0f to 1.0f) to (-32768 to 32767)
+	static constexpr float SCALER = 32767.0f;
+	for (size_t i = 0; i < length; ++i)
+	{
+		output[i] = static_cast<int16_t>(SCALER * toConvert[i]);
 	}
 }
