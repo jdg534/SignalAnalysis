@@ -1,4 +1,4 @@
-#include "Signal.h"
+#include "SignalAnalysis.h"
 
 #include <memory>
 #include <cmath>

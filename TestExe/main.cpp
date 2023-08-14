@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 
-#include <Signal.h>
+#include <SignalAnalysis.h>
 
 namespace testData
 {
