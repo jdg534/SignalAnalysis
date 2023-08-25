@@ -4,7 +4,7 @@
 #include <cmath>
 #define _USE_MATH_DEFINES
 #include <math.h>
-
+#include <limits>
 
 float Signal::Statistics::MeanF(const float* samples, const size_t nSamples)
 {
@@ -934,6 +934,18 @@ void Signal::Conversion::i16ToF(const int16_t* toConvert, const size_t length, f
 	}
 }
 
+void Signal::Conversion::i16ToU16(const int16_t* toConvert, const size_t length, uint16_t* output)
+{
+	static constexpr int32_t inputBottomOfRange = std::numeric_limits<int16_t>::min();
+	int32_t Convertion = 0;
+	for (size_t i = 0; i < length; ++i)
+	{
+		Convertion = toConvert[i];
+		Convertion -= inputBottomOfRange;
+		output[i] = static_cast<uint16_t>(Convertion);
+	}
+}
+
 void Signal::Conversion::fToI16(const float* toConvert, const size_t length, int16_t* output)
 {
 	// from (-1.0f to 1.0f) to (-32768 to 32767)
@@ -941,5 +953,55 @@ void Signal::Conversion::fToI16(const float* toConvert, const size_t length, int
 	for (size_t i = 0; i < length; ++i)
 	{
 		output[i] = static_cast<int16_t>(SCALER * toConvert[i]);
+	}
+}
+
+void Signal::Conversion::fToU16(const float* toConvert, const size_t length, uint16_t* output)
+{
+	float* CovertCopy = (float*)std::malloc(length * sizeof(float)); // convert to signed float range.
+	std::memcpy(CovertCopy, toConvert, length * sizeof(float));
+	fSignedToUnsigned(CovertCopy, length);
+	constexpr float SCALER = std::numeric_limits<uint16_t>::max();
+	for (size_t i = 0; i < length; ++i)
+	{
+		output[i] = static_cast<uint16_t>(CovertCopy[i] * SCALER);
+	}
+	std::free(CovertCopy);
+}
+
+void Signal::Conversion::u16Toi16(const uint16_t* toConvert, const size_t length, int16_t* output)
+{
+	int32_t Convertion = 0;
+	for (size_t i = 0; i < length; ++i)
+	{
+		Convertion = toConvert[i];
+		Convertion -= std::numeric_limits<int16_t>::max();
+		output[i] = static_cast<int16_t>(Convertion);
+	}
+}
+
+void Signal::Conversion::u16ToF(const uint16_t* toConvert, const size_t length, float* output)
+{
+	constexpr float ToUnsignedFloatRange = 1.0f / static_cast<float>(std::numeric_limits<uint16_t>::max());
+	for (size_t i = 0; i < length; ++i)
+	{
+		output[i] = static_cast<float>(toConvert[i]) * ToUnsignedFloatRange;
+	}
+	fUnsignedToSigned(output, length);
+}
+
+void Signal::Conversion::fSignedToUnsigned(float* toConvert, const size_t length)
+{
+	for (size_t i = 0; i < length; ++i)
+	{
+		toConvert[i] = (toConvert[i] + 1.0f) / 2.0f;
+	}
+}
+
+void Signal::Conversion::fUnsignedToSigned(float* toConvert, const size_t length)
+{
+	for (size_t i = 0; i < length; ++i)
+	{
+		toConvert[i] = (toConvert[i] * 2.0f) - 1.0f;
 	}
 }
