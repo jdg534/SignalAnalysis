@@ -113,12 +113,16 @@ namespace Signal
 
 	namespace Conversion
 	{
+		void i8ToF(const int8_t* toConvert, const size_t length, float* output);
+		void u8ToF(const uint8_t* toConvert, const size_t length, float* output);
 		void i16ToF(const int16_t* toConvert, const size_t length, float* output);
 		void i16ToU16(const int16_t* toConvert, const size_t length, uint16_t* output);
-		void fToI16(const float* toConvert, const size_t length, int16_t* output);
-		void fToU16(const float* toConvert, const size_t length, uint16_t* output);
 		void u16Toi16(const uint16_t* toConvert, const size_t length, int16_t* output);
 		void u16ToF(const uint16_t* toConvert, const size_t length, float* output);
+		void i32ToF(const int32_t* toConvert, const size_t length, float* output);
+		void u32ToF(const uint32_t* toConvert, const size_t length, float* output);
+		void fToI16(const float* toConvert, const size_t length, int16_t* output);
+		void fToU16(const float* toConvert, const size_t length, uint16_t* output);
 		// (-1.0f - 1.0f) to (0.0f - 1.0f)
 		void fSignedToUnsigned(float* toConvert, const size_t length);
 		// (0.0f - 1.0f) to (-1.0f - 1.0f)

@@ -549,8 +549,7 @@ void Signal::FourierTransforms::DiscreteFourierTransformFullTargetFrequenciesF(c
 	float currentFrequencyRealComponent = 0.0f, currentFrequencyComplexComponent = 0.0f;
 	for (size_t frequencyIndex = 0; frequencyIndex < numTargetFrequencies; ++frequencyIndex)
 	{
-		jAsFlt = 0.0f;
-		currentFrequencyRealComponent = 0.0f, currentFrequencyComplexComponent = 0.0f;
+		jAsFlt = currentFrequencyRealComponent = currentFrequencyComplexComponent = 0.0f;
 		for (size_t j = 0; j < inputSignalLength; ++j, ++jAsFlt)
 		{
 			currentFrequencyRealComponent += inputSignal[j] * cosf(2.0f * fltPi * targetFrequencies[frequencyIndex] * jAsFlt / inputSignalLengthAsFlt);
@@ -924,6 +923,25 @@ void Signal::Normalisation::NormaliseF(float* signal, const size_t length)
 	}
 }
 
+void Signal::Conversion::i8ToF(const int8_t* toConvert, const size_t length, float* output)
+{
+	constexpr float SCALER = 1.0f / std::numeric_limits<int8_t>::max();
+	for (size_t i = 0; i < length; ++i)
+	{
+		output[i] = static_cast<float>(toConvert[i]) * SCALER;
+	}
+}
+
+void Signal::Conversion::u8ToF(const uint8_t* toConvert, const size_t length, float* output)
+{
+	constexpr float SCALER = 1.0f / std::numeric_limits<uint8_t>::max();
+	for (size_t i = 0; i < length; ++i)
+	{
+		output[i] = static_cast<float>(toConvert[i]) * SCALER;
+	}
+	fUnsignedToSigned(output, length);
+}
+
 void Signal::Conversion::i16ToF(const int16_t* toConvert, const size_t length, float* output)
 {
 	// from (-32768 to 32767) to (-1.0f to 1.0f)
@@ -944,6 +962,35 @@ void Signal::Conversion::i16ToU16(const int16_t* toConvert, const size_t length,
 		Convertion -= inputBottomOfRange;
 		output[i] = static_cast<uint16_t>(Convertion);
 	}
+}
+
+void Signal::Conversion::u16ToF(const uint16_t* toConvert, const size_t length, float* output)
+{
+	constexpr float ToUnsignedFloatRange = 1.0f / static_cast<float>(std::numeric_limits<uint16_t>::max());
+	for (size_t i = 0; i < length; ++i)
+	{
+		output[i] = static_cast<float>(toConvert[i]) * ToUnsignedFloatRange;
+	}
+	fUnsignedToSigned(output, length);
+}
+
+void Signal::Conversion::i32ToF(const int32_t* toConvert, const size_t length, float* output)
+{
+	constexpr float SCALER = 1.0f / std::numeric_limits<int32_t>::max();
+	for (size_t i = 0; i < length; ++i)
+	{
+		output[i] = static_cast<float>(toConvert[i]) * SCALER;
+	}
+}
+
+void Signal::Conversion::u32ToF(const uint32_t* toConvert, const size_t length, float* output)
+{
+	constexpr float SCALER = 1.0f / std::numeric_limits<uint32_t>::max();
+	for (size_t i = 0; i < length; ++i)
+	{
+		output[i] = static_cast<float>(toConvert[i]) * SCALER;
+	}
+	fUnsignedToSigned(output, length);
 }
 
 void Signal::Conversion::fToI16(const float* toConvert, const size_t length, int16_t* output)
@@ -978,16 +1025,6 @@ void Signal::Conversion::u16Toi16(const uint16_t* toConvert, const size_t length
 		Convertion -= std::numeric_limits<int16_t>::max();
 		output[i] = static_cast<int16_t>(Convertion);
 	}
-}
-
-void Signal::Conversion::u16ToF(const uint16_t* toConvert, const size_t length, float* output)
-{
-	constexpr float ToUnsignedFloatRange = 1.0f / static_cast<float>(std::numeric_limits<uint16_t>::max());
-	for (size_t i = 0; i < length; ++i)
-	{
-		output[i] = static_cast<float>(toConvert[i]) * ToUnsignedFloatRange;
-	}
-	fUnsignedToSigned(output, length);
 }
 
 void Signal::Conversion::fSignedToUnsigned(float* toConvert, const size_t length)
